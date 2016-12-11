@@ -12,10 +12,18 @@
 \usepackage[margin=1.0in]{geometry}
 
 \title{Architecture du processeur}
-
+\author{Pluvinage Lucas, Fehr Mathieu, Dang-nhu Hector, Voss Malachi}
 \begin{document}
 
 \maketitle
+
+\section{Modèle de processeur}
+
+Nous avons choisi de beaucoup nous inspirer des processeurs ARM, qui ont
+l'avantage d'avoir un jeu d'instruction à la fois simple et complet, tout en
+possédant une certaine efficacité grace aux conditionnement des instructions,
+permettant de réduire le nombre de jump à effectuer dans les instructions
+assembleurs.
 
 \section{Mémoires et registres}
 
@@ -23,14 +31,18 @@ Le procésseur possède une unique RAM et une unique ROM. Au démarrage de la
 simulation, la RAM est entièrement vide. La ROM contient le programme sous forme
 d'opcodes, générés par du code assembleur.
 
-Le processeur possède 16 registres, de 32 bits.
+Le processeur contient 16 registres addressés sur 4 bits. Le registre \%r00
+pointe sur l'instruction actuelle à lire dans la ROM.
 
 \section{Opcodes}
+
+Une instruction assembleur est écrite sous 32 bits, et est structurée ainsi :
+
 \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
   \hline
   0-3  & 4 & 5 & 6 & 7-10 & 11 & 12-15 & 16-19 & 20-23 & 24-27 & 28-31 \\
   \hline
-  COND &   & 1 & \multicolumn{8}{c|}{Opération de RAM} \\
+  COND &   & 1 & \multicolumn{8}{c|}{Opération sur la RAM} \\
   \hline
   COND &   & 0 & I & OPCODE & Set flag & Registre op1 & Registre rd & \multicolumn{3}{c|}{Opérande op2}  \\
   \hline
@@ -42,14 +54,21 @@ Le processeur possède 16 registres, de 32 bits.
 
 \subsection{Flags}
 
+A chaque opération, si le booléen set flag est activé, alors les flags sont
+recalculés :
   \begin{itemize}
-  \item N : Négatif
-  \item Z : Zéro
-  \item C : Carry
-  \item V : Overflow
+  \item N : La dernière instruction renvoie un entier négatif
+  \item Z : La dernière instruction renvoie zéro
+  \item C : La dernière instruction fait un dépassement dans la représentation
+    non signée
+  \item V : La dernière instruction fait un dépassement dans la représentation
+    signée 
   \end{itemize}
 
   \subsection{Conditionnelles}
+
+  Voici les codes des conditions d'executions des opérations:\\
+  
 \begin{tabular}{|c|c|c|c|}
   \hline
   Code & Nom & Condition sur les flags & Signification (pour CMP ou SUB)\\
@@ -72,13 +91,14 @@ Le processeur possède 16 registres, de 32 bits.
   \hline
 \end{tabular}
 
-\subsection{Registres}
-16 registres addressés sur 4 bits.\\
-Le registre \%r00 pointe sur la prochaine instruction à exécuter dans la ROM.
-
 \section{Instructions assembleur}
 
+La syntaxe pour effectuer les opérations en assembleur suit la syntaxe spécifiée
+sur les processeurs ARM.
+
 \subsection{Opérations arithmétiques et booléennes}
+
+Voici les opérations assembleur arithmétiques et booléennes :\\
 
 \begin{tabular}{|c|c|c|}
   \hline
@@ -106,6 +126,8 @@ Le registre \%r00 pointe sur la prochaine instruction à exécuter dans la ROM.
 Où c représente le carry
 
 \subsection{Accès à la mémoire}
+
+Deux opérations sont possibles lors de l'accès à la mémoire :\\
 
 \begin{tabular}{|c|c|c|}
   \hline
