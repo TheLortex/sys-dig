@@ -26,35 +26,70 @@ d'opcodes, générés par du code assembleur.
 Le processeur possède 16 registres, de 32 bits.
 
 \section{Opcodes}
+\begin{tabular}{}
+  \hline
+  0-3 & 4 & 5 & 6 & 7-10 & 11 & 12-15 & 16-19 & 20-31
+  \hline
+  
 
-0-3 : Conditions flags\\
--N -> négatif strictement
--Z -> zéro
--C -> dépasse 32 bits
--V -> dépasse 31 bits
-
-4-5 : On sait pas encore
-
-6 : 1 = immediat, sinon registre
-
-7-10 : opcodes
-
-11 : changer les flags ou pas
-
-12-15 : Registre première opération
-
-16-19 : Registre de destination
-
-20-31 : operande 2
-
-
-Operande 2 registre :
-0-7 : shift
-8-11 : registre de l'opération 2
-
-Operande 2 immediat :
-0-3 : shift
-4-11 : immediat
+\begin{tabular}{|c|c|}
+\hline
+    0 - 3 & Conditionnelles
+  \hline
+    4 & Réservé
+  \hline
+    5 & R: Si R = 1: opérations de RAM. Si R = 0: opérations arithmétiques et logiques.
+  \hline
+    6 & Opération immédiate I
+  \hline
+    7 - 10 & Opcode
+  \hline
+    11 & Sauvegarder les flags
+  \hline
+    12 - 15 & Registre op1
+  \hline
+    16 - 19 & Registre rd
+  \hline
+    20 - 31 & Opérande op2
+  \hline
+\end{tabular}
+\subsection{Flags}
+\begin{itemize}
+  \item N : Négatif
+  \item Z : Zéro
+  \item C : Carry
+  \item V : Overflow
+\end{itemize}
+\subsection{Conditionnelles}
+\begin{tabular}{|c|c|}
+  \hline
+  Code & Nom & Condition sur les flags & Signification (pour CMP ou SUB)
+  \hline
+  0000 & EQ & Z & Égalité\\
+  0001 & NEQ & \bar{Z} & Non égalité\\
+  0010 & CS/HS & C & Carry set\\
+  0011 & CC/LO & \bar{C} & Carry clear\\
+  0100 & MI & N & Négatif \\
+  0101 & PL & \bar{N} & Positif ou nul \\
+  0110 & VS & V & Overflow signé \\
+  0111 & VC & \bar{V} & Pas d'overflow signé \\
+  1000 & HI & C \&\& \bar{Z} & Strictement plus grand non signé \\
+  1001 & LS & \bar{C} \|\| Z & Plus petit non signé \\
+  1010 & GE & N == V & Plus grand signé \\
+  1011 & LT & N != V & Strictement plus petit signé\\
+  1100 & GT & \bar{Z} \&\& (N == V) & Strictement plus grand signé \\
+  1101 & LE & Z \|\| (N != V) & Plus petit signé \\
+  1111 & AL &  & Toujours exécuté \\
+\end{tabular}
+\subsection{Registres}
+16 registres addressés sur 4 bits.\\
+Le registre \%r00 pointe sur la prochaine instruction à exécuter dans la ROM.
+\subsection{Opérande op2}
+L'opérande op2 est selon la valeur de I soit un registre soit une constante.
+Si I = 1:
+\begin{tabular}{|c|c|}
+  \hline
+  0 -
 
 \section{Instructions assembleur}
 
