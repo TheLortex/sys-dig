@@ -26,41 +26,27 @@ d'opcodes, générés par du code assembleur.
 Le processeur possède 16 registres, de 32 bits.
 
 \section{Opcodes}
-\begin{tabular}{ccccccccc}
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
   \hline
-  0-3 & 4 & 5 & 6 & 7-10 & 11 & 12-15 & 16-19 & 20-31\\
+  0-3  & 4 & 5 & 6 & 7-10 & 11 & 12-15 & 16-19 & 20-23 & 24-27 & 28-31 \\
   \hline
-\end{tabular} 
-
-\begin{tabular}{|c|c|}
-\hline
-    0 - 3 & Conditionnelles\\
+  COND &   & 1 & \multicolumn{8}{c|}{Opération de RAM} \\
   \hline
-    4 & Réservé\\
+  COND &   & 0 & I & OPCODE & Set flag & Registre op1 & Registre rd & \multicolumn{3}{c|}{Opérande op2}  \\
   \hline
-    5 & R: Si R = 1: opérations de RAM. Si R = 0: opérations arithmétiques et logiques.\\
+  COND &   & 0 & 1 & OPCODE & Set flag & Registre op1 & Registre rd & Shift & \multicolumn{2}{c|}{Constante} \\
   \hline
-    6 & Opération immédiate I\\
-  \hline
-    7 - 10 & Opcode\\
-  \hline
-    11 & Sauvegarder les flags\\
-  \hline
-    12 - 15 & Registre op1\\
-  \hline
-    16 - 19 & Registre rd\\
-  \hline
-    20 - 31 & Opérande op2\\
+  COND &   & 0 & 0 & OPCODE & Set flag & Registre op1 & Registre rd & \multicolumn{2}{c|}{Shift} & r2  \\
   \hline
 \end{tabular}
-  
+
 \subsection{Flags}
 
   \begin{itemize}
-  \item N : Négatif\\
-  \item Z : Zéro\\
-  \item C : Carry\\
-  \item V : Overflow\\
+  \item N : Négatif
+  \item Z : Zéro
+  \item C : Carry
+  \item V : Overflow
   \end{itemize}
 
   \subsection{Conditionnelles}
@@ -89,9 +75,6 @@ Le processeur possède 16 registres, de 32 bits.
 \subsection{Registres}
 16 registres addressés sur 4 bits.\\
 Le registre \%r00 pointe sur la prochaine instruction à exécuter dans la ROM.
-\subsection{Opérande op2}
-L'opérande op2 est selon la valeur de I soit un registre soit une constante.
-Si I = 1:
 
 \section{Instructions assembleur}
 
@@ -131,7 +114,7 @@ Où c représente le carry
   0 & LDR & R[Rd] = mémoire à l'adresse op2\\
   1 & STR & mémoire à l'adresse op2 = R[Rd]\\
   \hline
-            
+
 \end{tabular}
 
 \section{Détail de l'architecture}
