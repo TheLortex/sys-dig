@@ -8,6 +8,7 @@
 \usepackage{enumitem}
 \usepackage{relsize}
 \usepackage{dsfont}
+\usepackage{array}
 \usepackage[margin=1.0in]{geometry}
 
 \title{Architecture du processeur}
@@ -18,19 +19,89 @@
 
 \section{Mémoires et registres}
 
-(Combien de registres, RAM, ROM)\\
-fonctions spéciales des registres (program counter, registre d'entrée, de sortie ?)
+Le procésseur possède une unique RAM et une unique ROM. Au démarrage de la
+simulation, la RAM est entièrement vide. La ROM contient le programme sous forme
+d'opcodes, générés par du code assembleur.
+
+Le processeur possède 16 registres, de 32 bits.
 
 \section{Opcodes}
 
-Comment slicer le opcode
+0-3 : Conditions flags\\
+-N -> négatif strictement
+-Z -> zéro
+-C -> dépasse 32 bits
+-V -> dépasse 31 bits
+
+4-5 : On sait pas encore
+
+6 : 1 = immediat, sinon registre
+
+7-10 : opcodes
+
+11 : changer les flags ou pas
+
+12-15 : Registre première opération
+
+16-19 : Registre de destination
+
+20-31 : operande 2
+
+
+Operande 2 registre :
+0-7 : shift
+8-11 : registre de l'opération 2
+
+Operande 2 immediat :
+0-3 : shift
+4-11 : immediat
 
 \section{Instructions assembleur}
 
-Liste des opérations assembleur (add, etc..)\\
-plus les flags
+\subsection{Opérations arithmétiques et booléennes}
+
+\begin{tabular}{|c|c|c|}
+  \hline
+  Opcode & Nom assembleur & effet \\
+  \hline
+  0000 & AND & R[rd] = op1 and op2\\
+  0001 & EOR & R[rd] = op1 xor op2\\
+  0010 & SUB & R[rd] = op1 - op2\\
+  0011 & RSB & R[rd] = op2 - op1\\
+  0100 & ADD & R[rd] = op1 + op2\\
+  0101 & ADC & R[rd] = op1 + op2 + c\\
+  0110 & SBC & R[rd] = op1 - op2 + c - 1\\
+  0111 & RSC & R[rd] = op2 - op1 + c - 1\\
+  1000 & TST & set les flags sur op1 and op2\\
+  1001 & TEQ & set les flags sur op1 xor op2\\
+  1010 & CMP & set les flags sur op1 - op2\\
+  1011 & CMN & set les flags sur op1 + op2\\
+  1100 & ORR & R[rd] = op1 or op2\\
+  1101 & MOV & R[rd] = op2\\
+  1110 & BIC & R[rd] = op1 nand op2\\
+  1111 & MVN & R[rd] = not op2\\
+  \hline
+\end{tabular}
+
+Où c représente le carry
+
+\subsection{Accès à la mémoire}
+
+\begin{tabular}{|c|c|c|}
+  \hline
+  Opcode & Nom assembleur & effet\\
+  \hline
+  0 & LDR & R[Rd] = mémoire à l'adresse op2\\
+  1 & STR & mémoire à l'adresse op2 = R[Rd]\\
+  \hline
+            
+\end{tabular}
 
 \section{Détail de l'architecture}
+
+\subsection{ALU}
+
+
 
 architecture et fonctionnement de l'ALU\\
 architecture et fonctionnement de la carte graphique\\
