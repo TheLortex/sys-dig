@@ -75,10 +75,9 @@ end where
 add<n>(a:[n], b:[n], c_in) = (o:[n], f_out:[4]) where
   if n = 0 then
     o = [];
-    c_out = 0;
 		n = 0;
 		z = 1;
-		c = 0;
+		c = c_in;
 		v = 0;
 		f_out = n.z.c.v;
   else
@@ -105,12 +104,13 @@ incr<n>(a:[n]) = (o:[n],c) where
 	end if
 end where
 
+(*if c then a else b*)
 mux_n<n>(c,a:[n],b:[n]) = (o:[n]) where
 	if n = 0 then
 		o = []
 	else
 		o_n1 = mux_n<n-1>(c, a[1..], b[1..]);
-		o_n  = mux(c, a [0], b[0]);
+		o_n  = mux(c, b[0], a[0]);
 		o = o_n . o_n1
 	end if
 end where
@@ -124,7 +124,14 @@ alu<n>(op1:[n], op2:[n], opcode:[4], carry) = (ret:[n],flags:[4]) where
 
 
 	(*Section 0XXX*)
-
+	(*0000: ADD*)
+	(*0001: ADC*)
+	(*0010: RSB*)
+	(*0011: RSC*)
+	(*0101: CMP*)
+	(*0100: CMN*)
+	(*0110: SUB*)
+	(*0111: SBC*)
 
 	in1 = mux_n<n>(opcode[1], op1, op2);
 	in2 = mux_n<n>(opcode[1],
@@ -136,7 +143,7 @@ alu<n>(op1:[n], op2:[n], opcode:[4], carry) = (ret:[n],flags:[4]) where
 					)),
 				mux_n<n>(opcode[2],neg_op1,op1));
 
-	c_in = mux(opcode[1] & not(opcode[2]), 0, mux(opcode[3], carry, 0));
+	c_in = mux(opcode[1] & not(opcode[2]), mux(opcode[3], 0, carry), 0);
 
 	(r0XXX,f0XXX) = add<n>(in1,in2,c_in);
 
@@ -162,8 +169,8 @@ alu<n>(op1:[n], op2:[n], opcode:[4], carry) = (ret:[n],flags:[4]) where
   r1XXX = mux_n<n>(opcode[1],r11XX,r10XX);
   f1XXX = mux_n<4>(opcode[1],f11XX,f10XX);
 
-  ret   = mux_n<n>(opcode[1],r1XXX,r0XXX);
-  flags = mux_n<4>(opcode[1],f1XXX,f0XXX);
+  ret   = mux_n<n>(opcode[0],r1XXX,r0XXX);
+  flags = mux_n<4>(opcode[0],f1XXX,f0XXX);
 end where
 
 
