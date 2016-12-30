@@ -1,0 +1,172 @@
+
+const size = 4
+
+and_n<n>(a:[n],b:[n]) = (o:[n], f:[4]) where
+	if n = 0 then
+		o = [];
+    f = 0 . 1 . 0 . 0
+	else
+		s0 = a[0] & b [0];
+		(s, fn)  = and_n<n-1>(a[1..],b[1..]);
+		o  = s0 . s;
+    z  = not(s0) & fn[1];
+    f  = s0 . z . 0 . 0
+	end if
+end where
+
+eor_n<n>(a:[n],b:[n]) = (o:[n], f:[4]) where
+if n = 0 then
+  o = [];
+  f = 0 . 1 . 0 . 0
+else
+  s0 = a[0] ^ b [0];
+  (s, fn)  = eor_n<n-1>(a[1..],b[1..]);
+  o  = s0 . s;
+  z  = not(s0) & fn[1];
+  f  = s0 . z . 0 . 0
+end if
+end where
+
+orr_n<n>(a:[n],b:[n]) = (o:[n], f:[4]) where
+if n = 0 then
+  o = [];
+  f = 0 . 1 . 0 . 0
+else
+  s0 = a[0] or b[0];
+  (s, fn)  = orr_n<n-1>(a[1..],b[1..]);
+  o  = s0 . s;
+  z  = not(s0) & fn[1];
+  f  = s0 . z . 0 . 0
+end if
+end where
+
+nand_n<n>(a:[n],b:[n]) = (o:[n], f:[4]) where
+if n = 0 then
+  o = [];
+  f = 0 . 1 . 0 . 0
+else
+  s0 = a[0] & b [0];
+  ns0 = not(s0);
+  (s, fn)  = nand_n<n-1>(a[1..],b[1..]);
+  o  = ns0 . s;
+  z  = ns0 & fn[1];
+  f  = ns0 . z . 0 . 0
+end if
+end where
+
+not_n<n>(a:[n]) = (o:[n], f:[4]) where
+if n = 0 then
+  o = [];
+  f = 0 . 1 . 0 . 0
+else
+  s0 = not(a[0]);
+  (s, fn)  = not_n<n-1>(a[1..]);
+  o  = s0 . s;
+  z  = not(s0) & fn[1];
+  f  = s0 . z . 0 . 0
+end if
+end where
+
+fulladder(a,b,c) = (s, r) where
+  s = (a ^ b) ^ c;
+  r = (a & b) + ((a ^ b) & c);
+end where
+
+add<n>(a:[n], b:[n], c_in) = (o:[n], f_out:[4]) where
+  if n = 0 then
+    o = [];
+    c_out = 0;
+		n = 0;
+		z = 1;
+		c = 0;
+		v = 0;
+		f_out = n.z.c.v;
+  else
+    (s_n1, f_n1) = add<n-1>(a[1..], b[1..], c_in);
+    (s_0, c_out) = fulladder(a[0], b[0], f_n1[2]);
+    o = s_0 . s_n1;
+		n = s_0;
+		z = not(s_0) & f_n1[1];
+		c = c_out;
+		v = c_out ^ f_n1[2]; (* # l'astuce du prof *)
+		f_out = n.z.c.v;
+  end if
+end where
+
+incr<n>(a:[n]) = (o:[n],c) where
+  if n = 0 then
+		o = [];
+		c = 1
+	else
+		(o_n1, c_n1) = incr<n-1>(a[1..]);
+		o_n = a[0] ^ c_n1;
+		c   = a[0] & c_n1;
+		o = o_n . o_n1
+	end if
+end where
+
+mux_n<n>(c,a:[n],b:[n]) = (o:[n]) where
+	if n = 0 then
+		o = []
+	else
+		o_n1 = mux_n<n-1>(c, a[1..], b[1..]);
+		o_n  = mux(c, a [0], b[0]);
+		o = o_n . o_n1
+	end if
+end where
+
+
+alu<n>(op1:[n], op2:[n], opcode:[4], carry) = (ret:[n],flags:[4]) where
+	(p0, f0)				= not_n<n>(op1);
+	(p1, f1)				= not_n<n>(op2);
+	(neg_op1, t)	= incr<n>(p0);
+	(neg_op2, f)	= incr<n>(p1);
+
+
+	(*Section 0XXX*)
+
+
+	in1 = mux_n<n>(opcode[1], op1, op2);
+	in2 = mux_n<n>(opcode[1],
+				mux_n<n>(opcode[2],
+				 neg_op2,
+				 mux_n<n>(opcode[3],
+				  neg_op2,
+					op2
+					)),
+				mux_n<n>(opcode[2],neg_op1,op1));
+
+	c_in = mux(opcode[1] & not(opcode[2]), 0, mux(opcode[3], carry, 0));
+
+	(r0XXX,f0XXX) = add<n>(in1,in2,c_in);
+
+	(*Section 1XXX*)
+  (r100X, f100X) = and_n<n>(op1, op2);
+  (r111X, f111X) = eor_n<n>(op1, op2);
+  (r1010, f1010) = orr_n<n>(op1, op2);
+  (r1011, f1011) = nand_n<n>(op1, op2);
+  (r1100, f1100) = not_n<n>(op2);
+  r1101 = op2;
+	f1101 = op2[0].0.0.0; (*TODO: Tester si c'est nul*)
+
+  r101X = mux_n<n>(opcode[3],r1011,r1010);
+  f101X = mux_n<4>(opcode[3],f1011,f1010);
+  r110X = mux_n<n>(opcode[3],r1101,r1100);
+  f110X = mux_n<4>(opcode[3],f1101,f1100);
+
+  r10XX = mux_n<n>(opcode[2],r101X,r100X);
+  f10XX = mux_n<4>(opcode[2],f101X,f100X);
+  r11XX = mux_n<n>(opcode[2],r111X,r110X);
+  f11XX = mux_n<4>(opcode[2],f111X,f110X);
+
+  r1XXX = mux_n<n>(opcode[1],r11XX,r10XX);
+  f1XXX = mux_n<4>(opcode[1],f11XX,f10XX);
+
+  ret   = mux_n<n>(opcode[1],r1XXX,r0XXX);
+  flags = mux_n<4>(opcode[1],f1XXX,f0XXX);
+end where
+
+
+main(op1:[size], op2:[size], opcode:[4], carry) = (ret:[size],flags:[4]) where
+	(ret, flags) = alu<size>(op1, op2, opcode, carry)
+end where
