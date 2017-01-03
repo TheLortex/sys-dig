@@ -1,0 +1,21 @@
+readrom<addr_size,word_size>(pointer_ram:[word_size]) = (r:[word_size]) where
+    r = rom<addr_size,word_size>(pointer_ram)
+end where
+
+main() = () where
+    (* On set les flags des calculs précédents *)
+    flagN = reg(regFlagN);
+    flagZ = reg(regFlagZ);
+    flagC = reg(regFlagC);
+    flagV = reg(regFlagV);
+    
+    instruction = readrom<32,16>(r0);
+
+
+
+    (* On*)
+    regFlagN = 0;
+    regFlagZ = 0;
+    regFlagC = 0;
+    regFlagV = 0;
+end where
