@@ -41,7 +41,7 @@ t1101(Z,C,N,V)=(s) where
 	s=Z or ( N xor V)
 end where
 t1110(Z,C,N,V)=(s) where
-	s=Z or ( N xor V)
+	s=0
 end where
 t1111(Z,C,N,V)=(s) where
 	s=1

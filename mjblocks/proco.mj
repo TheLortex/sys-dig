@@ -1,17 +1,42 @@
+(* lecture de la rom *)
 readrom<addr_size,word_size>(pointer_ram:[word_size]) = (r:[word_size]) where
     r = rom<addr_size,word_size>(pointer_ram)
 end where
 
+
+
+
+(* Conditionnement des instructions *)
+testcondition(t:[4],Z,C,N,V)=(s) where
+    temp=mux(t[0],
+	     mux(t[1],
+		 	mux(t[2], Z, C)),
+			mux(t[2], N, V))
+		mux(t[1],
+			mux(t[2], C and (not Z), not (N xor V)),
+			mux(t[2], not(Z) and (not (N xor V)), 0));
+    s = mux(t[3],temp,not temp);
+end where
+
+
+
+
+(* fonction principale*)
 main() = () where
     (* On set les flags des calculs précédents *)
     flagN = reg(regFlagN);
     flagZ = reg(regFlagZ);
     flagC = reg(regFlagC);
     flagV = reg(regFlagV);
-    
+
+    (* l'instruction assembleur à lire pour l'étape *)
     instruction = readrom<32,16>(r0);
 
+    (* Le conditionnement de l'instruction *)
+    cond = instruction[0..3];
 
+    (* block condition à ajouter ici *)
+     
 
     (* On*)
     regFlagN = 0;

@@ -44,11 +44,11 @@ Une instruction assembleur est écrite sous 32 bits, et est structurée ainsi :
   \hline
   COND &   & 1 & \multicolumn{8}{c|}{Opération sur la RAM} \\
   \hline
-  COND &   & 0 & I & OPCODE & Set flag & Registre op1 & Registre rd & \multicolumn{3}{c|}{Opérande op2}  \\
+  COND &   & 0 & I & OPCODE & Set flag & Registre rd & Registre op1 & \multicolumn{3}{c|}{Opérande op2}  \\
   \hline
-  COND &   & 0 & 1 & OPCODE & Set flag & Registre op1 & Registre rd & Shift & \multicolumn{2}{c|}{Constante} \\
+  COND &   & 0 & 1 & OPCODE & Set flag & Registre rd &Registre op1 & Shift & \multicolumn{2}{c|}{Constante} \\
   \hline
-  COND &   & 0 & 0 & OPCODE & Set flag & Registre op1 & Registre rd & \multicolumn{2}{c|}{Shift} & r2  \\
+  COND &   & 0 & 0 & OPCODE & Set flag & Registre rd & Registre op1 & \multicolumn{2}{c|}{Shift} & r2  \\
   \hline
 \end{tabular}
 
