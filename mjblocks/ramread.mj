@@ -1,0 +1,3 @@
+ram_reader<addr_size , word_size>(read_addr:[addr_size] , write_enable , write_addr:[addr_size] , write_data:[word_size])=(sortie:[word_size]) where 
+sortie=ram<addr_size , word_size >(read_addr , write_enable , write_addr , write_data);
+end where
