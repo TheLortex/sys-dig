@@ -1,0 +1,3 @@
+ram_write<addr_size , word_size>(write_addr:[addr_size], data:[word_size]) = (s) where
+	s=ram<addr_size , word_size >(write_addr, 1, write_addr, data)
+end where
