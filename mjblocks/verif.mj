@@ -1,0 +1,67 @@
+t0000(Z,C,N,V)=(s) where
+	s=Z
+end where
+t0001(Z,C,N,V)=(s) where
+	s=not Z
+end where
+t0010(Z,C,N,V)=(s) where
+	s=C
+end where
+t0011(Z,C,N,V)=(s) where
+	s=not C
+end where
+t0100(Z,C,N,V)=(s) where
+	s=N
+end where
+t0101(Z,C,N,V)=(s) where
+	s=not N
+end where
+t0110(Z,C,N,V)=(s) where
+	s=V
+end where
+t0111(Z,C,N,V)=(s) where
+	s=not V
+end where
+t1000(Z,C,N,V)=(s) where
+	s=C and (not Z)
+end where
+t1001(Z,C,N,V)=(s) where
+	s=(not C) or Z
+end where
+t1010(Z,C,N,V)=(s) where
+	s=not ( N xor V)
+end where
+t1011(Z,C,N,V)=(s) where
+	s=N xor V
+end where
+t1100(Z,C,N,V)=(s) where
+	s=(not Z) and (not ( N xor V))
+end where
+t1101(Z,C,N,V)=(s) where
+	s=Z or ( N xor V)
+end where
+t1110(Z,C,N,V)=(s) where
+	s=Z or ( N xor V)
+end where
+t1111(Z,C,N,V)=(s) where
+	s=1
+end where
+
+
+testcondition(t:[4],Z,C,N,V)=(s) where
+	s=mux(t[0],
+		mux(t[1],
+			mux(t[2],
+				mux(t[3],t0000(Z,C,N,V),t0001(Z,C,N,V)),
+				mux(t[3],t0010(Z,C,N,V),t0011(Z,C,N,V))),
+			mux(t[2],
+				mux(t[3],t0100(Z,C,N,V),t0101(Z,C,N,V)),
+				mux(t[3],t0110(Z,C,N,V),t0111(Z,C,N,V)))),
+		mux(t[1],
+			mux(t[2],
+				mux(t[3],t1000(Z,C,N,V),t1001(Z,C,N,V)),
+				mux(t[3],t1010(Z,C,N,V),t1011(Z,C,N,V))),
+			mux(t[2],
+				mux(t[3],t1100(Z,C,N,V),t1101(Z,C,N,V)),
+				mux(t[3],t1110(Z,C,N,V),t1111(Z,C,N,V)))))
+end where
