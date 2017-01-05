@@ -1,71 +1,5 @@
 
-const size = 4
-
-and_n<n>(a:[n],b:[n]) = (o:[n], f:[4]) where
-	if n = 0 then
-		o = [];
-    f = 0 . 1 . 0 . 0
-	else
-		s0 = a[0] & b [0];
-		(s, fn)  = and_n<n-1>(a[1..],b[1..]);
-		o  = s0 . s;
-    z  = not(s0) & fn[1];
-    f  = s0 . z . 0 . 0
-	end if
-end where
-
-eor_n<n>(a:[n],b:[n]) = (o:[n], f:[4]) where
-if n = 0 then
-  o = [];
-  f = 0 . 1 . 0 . 0
-else
-  s0 = a[0] ^ b [0];
-  (s, fn)  = eor_n<n-1>(a[1..],b[1..]);
-  o  = s0 . s;
-  z  = not(s0) & fn[1];
-  f  = s0 . z . 0 . 0
-end if
-end where
-
-orr_n<n>(a:[n],b:[n]) = (o:[n], f:[4]) where
-if n = 0 then
-  o = [];
-  f = 0 . 1 . 0 . 0
-else
-  s0 = a[0] or b[0];
-  (s, fn)  = orr_n<n-1>(a[1..],b[1..]);
-  o  = s0 . s;
-  z  = not(s0) & fn[1];
-  f  = s0 . z . 0 . 0
-end if
-end where
-
-nand_n<n>(a:[n],b:[n]) = (o:[n], f:[4]) where
-if n = 0 then
-  o = [];
-  f = 0 . 1 . 0 . 0
-else
-  s0 = a[0] & b [0];
-  ns0 = not(s0);
-  (s, fn)  = nand_n<n-1>(a[1..],b[1..]);
-  o  = ns0 . s;
-  z  = ns0 & fn[1];
-  f  = ns0 . z . 0 . 0
-end if
-end where
-
-not_n<n>(a:[n]) = (o:[n], f:[4]) where
-if n = 0 then
-  o = [];
-  f = 0 . 1 . 0 . 0
-else
-  s0 = not(a[0]);
-  (s, fn)  = not_n<n-1>(a[1..]);
-  o  = s0 . s;
-  z  = not(s0) & fn[1];
-  f  = s0 . z . 0 . 0
-end if
-end where
+const size = 5
 
 fulladder(a,b,c) = (s, r) where
   s = (a ^ b) ^ c;
@@ -104,21 +38,19 @@ incr<n>(a:[n]) = (o:[n],c) where
 	end if
 end where
 
-(*if c then a else b*)
-mux_n<n>(c,a:[n],b:[n]) = (o:[n]) where
+
+get_flags<n>(a:[n]) = (o:[2]) where
 	if n = 0 then
-		o = []
+		o = 0 . 1;
 	else
-		o_n1 = mux_n<n-1>(c, a[1..], b[1..]);
-		o_n  = mux(c, b[0], a[0]);
-		o = o_n . o_n1
+		f_n1 = get_flags<n-1>(a[1..]);
+		o = a[0] . (not(a[0]) and f_n1[1]);
 	end if
 end where
 
-
 alu<n>(op1:[n], op2:[n], opcode:[4], carry) = (ret:[n],flags:[4]) where
-	(p0, f0)				= not_n<n>(op1);
-	(p1, f1)				= not_n<n>(op2);
+	p0						= not_n<n>(op1);
+	p1						= not_n<n>(op2);
 	(neg_op1, t)	= incr<n>(p0);
 	(neg_op2, f)	= incr<n>(p1);
 
@@ -133,44 +65,39 @@ alu<n>(op1:[n], op2:[n], opcode:[4], carry) = (ret:[n],flags:[4]) where
 	(*0110: SUB*)
 	(*0111: SBC*)
 
-	in1 = mux_n<n>(opcode[1], op1, op2);
+	in1 = mux_n<n>(opcode[1], op2, op1);
 	in2 = mux_n<n>(opcode[1],
-				mux_n<n>(opcode[2],
-				 neg_op2,
-				 mux_n<n>(opcode[3],
-				  neg_op2,
-					op2
-					)),
-				mux_n<n>(opcode[2],neg_op1,op1));
+					mux_n<n>(opcode[2],op1,neg_op1),
+					mux_n<n>(opcode[2],
+						mux_n<n>(opcode[3],
+						 op2,
+						 neg_op2
+						 ),
+					 	neg_op2));
 
 	c_in = mux(opcode[1] & not(opcode[2]), mux(opcode[3], 0, carry), 0);
 
 	(r0XXX,f0XXX) = add<n>(in1,in2,c_in);
 
 	(*Section 1XXX*)
-  (r100X, f100X) = and_n<n>(op1, op2);
-  (r111X, f111X) = eor_n<n>(op1, op2);
-  (r1010, f1010) = orr_n<n>(op1, op2);
-  (r1011, f1011) = nand_n<n>(op1, op2);
-  (r1100, f1100) = not_n<n>(op2);
+  r100X = and_n<n>(op1,op2);
+  r111X = xor_n<n>(op1,op2);
+  r1010 = or_n<n>(op1,op2);
+  r1011 = not_n<n>(and_n<n>(op1,op2));
+  r1100 = p1;
   r1101 = op2;
-	f1101 = op2[0].0.0.0; (*TODO: Tester si c'est nul*)
 
-  r101X = mux_n<n>(opcode[3],r1011,r1010);
-  f101X = mux_n<4>(opcode[3],f1011,f1010);
-  r110X = mux_n<n>(opcode[3],r1101,r1100);
-  f110X = mux_n<4>(opcode[3],f1101,f1100);
+  r101X = mux_n<n>(opcode[3],r1010,r1011);
+  r110X = mux_n<n>(opcode[3],r1100,r1101);
 
-  r10XX = mux_n<n>(opcode[2],r101X,r100X);
-  f10XX = mux_n<4>(opcode[2],f101X,f100X);
-  r11XX = mux_n<n>(opcode[2],r111X,r110X);
-  f11XX = mux_n<4>(opcode[2],f111X,f110X);
+  r10XX = mux_n<n>(opcode[2],r100X,r101X);
+  r11XX = mux_n<n>(opcode[2],r110X,r111X);
 
-  r1XXX = mux_n<n>(opcode[1],r11XX,r10XX);
-  f1XXX = mux_n<4>(opcode[1],f11XX,f10XX);
+  r1XXX = mux_n<n>(opcode[1],r10XX,r11XX);
+	f1XXX = get_flags<n>(r1XXX) . 0 . 0;
 
-  ret   = mux_n<n>(opcode[0],r1XXX,r0XXX);
-  flags = mux_n<4>(opcode[0],f1XXX,f0XXX);
+  ret   = mux_n<n>(opcode[0],r0XXX,r1XXX);
+  flags = mux_n<4>(opcode[0],f0XXX,f1XXX);
 end where
 
 
