@@ -55,13 +55,14 @@ module Modules = struct
     env := Ast.NameEnv.add n s !env
 
   let _ =
-    add_sig "and" [TBit;TBit] [TBit];
-    add_sig "xor" [TBit;TBit] [TBit];
-    add_sig "or"  [TBit;TBit] [TBit];
-    add_sig "not" [TBit] [TBit];
+    let nsv () = TBitArray (mk_static_var "n") in
+    add_sig "and" [nsv ();nsv ()] [nsv ()];
+    add_sig "xor" [nsv ();nsv ()] [nsv ()];
+    add_sig "or"  [nsv ();nsv ()] [nsv ()];
+    add_sig "not" [nsv ()] [nsv ()];
     add_sig "reg" [TBitArray (mk_static_var "n")] [TBitArray
     (mk_static_var "n")];
-    add_sig "mux" [TBit;TBit;TBit] [TBit];
+    add_sig "mux" [TBit;nsv ();nsv ()] [nsv ()];
     add_sig ~params:["n"] "print" [TBitArray (mk_static_var "n"); TBit] [TBit];
     add_sig ~params:["n"] "input" [TBit] [TBitArray (mk_static_var "n")];
     let constr1 = mk_static_exp (SBinOp(SLess, mk_static_var "i", mk_static_var "n")) in
