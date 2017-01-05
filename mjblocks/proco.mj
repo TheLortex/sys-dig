@@ -1,46 +1,43 @@
-(* lecture de la rom *)
-readrom<addr_size,word_size>(pointer_ram:[word_size]) = (r:[word_size]) where
-    r = rom<addr_size,word_size>(pointer_ram)
-end where
-
-
-
-
-(* Conditionnement des instructions *)
+(* Conditionnement des instructions
+   Renvoie 0 si l'opération en cours doit être effectué, 1 sinon *)
 testcondition(t:[4],Z,C,N,V)=(s) where
-    temp=mux(t[0],
-	     mux(t[1],
-		 	mux(t[2], Z, C)),
-			mux(t[2], N, V))
-		mux(t[1],
-			mux(t[2], C and (not Z), not (N xor V)),
-			mux(t[2], not(Z) and (not (N xor V)), 0));
-    s = mux(t[3],temp,not temp);
-end where
+    notZ = not Z;
+    notNxorV = not (N xor V);
+    t0 = t[0];
+    t1 = t[1];
+    t2 = t[2];
+    t3 = t[3];
 
+    temp000 = mux(t2, C, Z);
+    temp001 = mux(t2, V, N);
+    temp010 = mux(t2, notNxorV, C and notZ);
+    temp011 = mux(t2, 0, notZ and notNxorV);
+
+    temp00 = mux(t1, temp001, temp000);
+    temp01 = mux(t1, temp011, temp010);
+
+    temp0 = mux(t0, temp01, temp00);
+
+    s = mux(t3,not temp0,temp0);
+end where
 
 
 
 (* fonction principale*)
 main() = () where
     (* On set les flags des calculs précédents *)
-    flagN = reg(regFlagN);
-    flagZ = reg(regFlagZ);
-    flagC = reg(regFlagC);
-    flagV = reg(regFlagV);
+    flagN = reg(newFlagN);
+    flagZ = reg(newFlagZ);
+    flagC = reg(newFlagC);
+    flagV = reg(newFlagV);
 
-    (* l'instruction assembleur à lire pour l'étape *)
+    (* l'instruction assembleur à lire pour le cycle en cours*)
     instruction = readrom<32,16>(r0);
 
     (* Le conditionnement de l'instruction *)
     cond = instruction[0..3];
+    shouldRun = testscondition(cond,flagZ,flagC,flagN,flagV);
 
-    (* block condition à ajouter ici *)
-     
-
-    (* On*)
-    regFlagN = 0;
-    regFlagZ = 0;
-    regFlagC = 0;
-    regFlagV = 0;
+    
+    
 end where
