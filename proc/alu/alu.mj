@@ -94,7 +94,7 @@ alu<n>(op1:[n], op2:[n], opcode:[4], carry) = (ret:[n],flags:[4]) where
   r11XX = mux_n<n>(opcode[2],r110X,r111X);
 
   r1XXX = mux_n<n>(opcode[1],r10XX,r11XX);
-	f1XXX = get_flags<n>(r1XXX) . 0 . 0;
+  f1XXX = get_flags<n>(r1XXX) . 0 . 0;
 
   ret   = mux_n<n>(opcode[0],r0XXX,r1XXX);
   flags = mux_n<4>(opcode[0],f0XXX,f1XXX);
