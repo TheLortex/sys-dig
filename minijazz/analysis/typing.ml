@@ -56,13 +56,20 @@ module Modules = struct
 
   let _ =
     let nsv () = TBitArray (mk_static_var "n") in
-    add_sig "and" [nsv ();nsv ()] [nsv ()];
-    add_sig "xor" [nsv ();nsv ()] [nsv ()];
-    add_sig "or"  [nsv ();nsv ()] [nsv ()];
-    add_sig "not" [nsv ()] [nsv ()];
+    add_sig "and" [TBit;TBit] [TBit];
+    add_sig "xor" [TBit;TBit] [TBit];
+    add_sig "or"  [TBit;TBit] [TBit];
+    add_sig "not" [TBit] [TBit];
     add_sig "reg" [TBitArray (mk_static_var "n")] [TBitArray
-    (mk_static_var "n")];
-    add_sig "mux" [TBit;nsv ();nsv ()] [nsv ()];
+                                                     (mk_static_var "n")];
+    add_sig "mux" [TBit;TBit;TBit] [TBit];
+
+    add_sig ~params:["n"] "and_n" [nsv ();nsv ()] [nsv ()];
+    add_sig ~params:["n"] "xor_n" [nsv ();nsv ()] [nsv ()];
+    add_sig ~params:["n"] "or_n"  [nsv ();nsv ()] [nsv ()];
+    add_sig ~params:["n"] "not_n" [nsv ()] [nsv ()];
+    add_sig ~params:["n"] "mux_n" [TBit;nsv ();nsv ()] [nsv ()];
+
     add_sig ~params:["n"] "print" [TBitArray (mk_static_var "n"); TBit] [TBit];
     add_sig ~params:["n"] "input" [TBit] [TBitArray (mk_static_var "n")];
     let constr1 = mk_static_exp (SBinOp(SLess, mk_static_var "i", mk_static_var "n")) in

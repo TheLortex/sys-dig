@@ -66,13 +66,11 @@ ocamlfind ocamlc -c -I parser -I netlist -I global -I main -I analysis -o parser
 # Target: parser/lexer.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:parser/lexer.cmo, file:parser/lexer.ml, implem, ocaml, quiet, traverse, use_menhir }
 ocamlfind ocamlc -c -I parser -I netlist -I global -I main -I analysis -o parser/lexer.cmo parser/lexer.ml # cached
 # Target: main/mj2net.ml.depends, tags: { extension:ml, file:main/mj2net.ml, ocaml, ocamldep, quiet, traverse, use_menhir }
-ocamlfind ocamldep -modules main/mj2net.ml > main/mj2net.ml.depends # cached
+ocamlfind ocamldep -modules main/mj2net.ml > main/mj2net.ml.depends
 # Target: netlist/netlist_ast.ml.depends, tags: { debug, extension:ml, file:netlist/netlist_ast.ml, ocaml, ocamldep, quiet, traverse, use_menhir }
 ocamlfind ocamldep -modules netlist/netlist_ast.ml > netlist/netlist_ast.ml.depends # cached
 # Target: netlist/netlist_ast.cmo, tags: { byte, compile, debug, extension:cmo, extension:ml, file:netlist/netlist_ast.cmo, file:netlist/netlist_ast.ml, implem, ocaml, quiet, traverse, use_menhir }
 ocamlfind ocamlc -c -g -I netlist -I parser -I global -I main -I analysis -o netlist/netlist_ast.cmo netlist/netlist_ast.ml # cached
-# Target: main/mj2net.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:main/mj2net.cmo, file:main/mj2net.ml, implem, ocaml, quiet, traverse, use_menhir }
-ocamlfind ocamlc -c -I main -I netlist -I parser -I global -I analysis -o main/mj2net.cmo main/mj2net.ml # cached
 # Target: netlist/netlist_printer.ml.depends, tags: { debug, extension:ml, file:netlist/netlist_printer.ml, ocaml, ocamldep, quiet, traverse, use_menhir }
 ocamlfind ocamldep -modules netlist/netlist_printer.ml > netlist/netlist_printer.ml.depends # cached
 # Target: netlist/netlist_printer.cmo, tags: { byte, compile, debug, extension:cmo, extension:ml, file:netlist/netlist_printer.cmo, file:netlist/netlist_printer.ml, implem, ocaml, quiet, traverse, use_menhir }
@@ -87,12 +85,14 @@ ocamlfind ocamldep -modules analysis/simplify.ml > analysis/simplify.ml.depends 
 ocamlfind ocamlc -c -I analysis -I netlist -I parser -I global -I main -o analysis/simplify.cmo analysis/simplify.ml # cached
 # Target: analysis/typing.ml.depends, tags: { extension:ml, file:analysis/typing.ml, ocaml, ocamldep, quiet, traverse, use_menhir }
 ocamlfind ocamldep -modules analysis/typing.ml > analysis/typing.ml.depends
+# Target: main/mj2net.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:main/mj2net.cmo, file:main/mj2net.ml, implem, ocaml, quiet, traverse, use_menhir }
+ocamlfind ocamlc -c -I main -I netlist -I parser -I global -I analysis -o main/mj2net.cmo main/mj2net.ml
 # Target: analysis/typing.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:analysis/typing.cmo, file:analysis/typing.ml, implem, ocaml, quiet, traverse, use_menhir }
 ocamlfind ocamlc -c -I analysis -I netlist -I parser -I global -I main -o analysis/typing.cmo analysis/typing.ml
 # Target: main/mj_compiler.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:main/mj_compiler.cmo, file:main/mj_compiler.ml, implem, ocaml, quiet, traverse, use_menhir }
-ocamlfind ocamlc -c -I main -I netlist -I parser -I global -I analysis -o main/mj_compiler.cmo main/mj_compiler.ml # cached
+ocamlfind ocamlc -c -I main -I netlist -I parser -I global -I analysis -o main/mj_compiler.cmo main/mj_compiler.ml
 # Target: main/mjc.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:main/mjc.cmo, file:main/mjc.ml, implem, ocaml, quiet, traverse, use_menhir }
-ocamlfind ocamlc -c -I main -I netlist -I parser -I global -I analysis -o main/mjc.cmo main/mjc.ml # cached
+ocamlfind ocamlc -c -I main -I netlist -I parser -I global -I analysis -o main/mjc.cmo main/mjc.ml
 # Target: parser/parser.ml.depends, tags: { extension:ml, file:parser/parser.ml, ocaml, ocamldep, quiet, traverse, use_menhir, use_menhirLib }
 ocamlfind ocamldep -modules parser/parser.ml > parser/parser.ml.depends # cached
 # Target: parser/parser.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:parser/parser.cmo, file:parser/parser.ml, implem, ocaml, quiet, traverse, use_menhir, use_menhirLib }

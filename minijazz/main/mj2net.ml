@@ -43,18 +43,22 @@ let rec tr_exp e = match e.e_desc with
   | Econst v ->  Netlist_ast.Earg (Netlist_ast.Aconst (tr_value v))
   | Ereg e -> Netlist_ast.Ereg (expect_ident e)
   | Ecall ("not", _, [e]) -> Netlist_ast.Enot (expect_arg e)
-  | Ecall (("or" | "xor" | "and" | "nand") as op, _, [e1; e2]) ->
+  | Ecall ("not_n", _, [e]) -> Netlist_ast.Enot (expect_arg e)
+  | Ecall (("or" | "xor" | "and" | "nand" | "or_n" | "xor_n" | "and_n" | "nand_n") as
+           op, _, [e1; e2]) ->
       let op =
         match op with
-          | "or" -> Netlist_ast.Or
-          | "xor" -> Netlist_ast.Xor
-          | "and" -> Netlist_ast.And
-          | "nand" -> Netlist_ast.Nand
+        | "or" | "or_n" -> Netlist_ast.Or
+        | "xor" | "xor_n" -> Netlist_ast.Xor
+        | "and" | "and_n" -> Netlist_ast.And
+        | "nand"| "nand_n" -> Netlist_ast.Nand
           | _ -> assert false
       in
       Netlist_ast.Ebinop (op, expect_arg e1, expect_arg e2)
   | Ecall ("mux", _, [e1; e2; e3]) ->
-      Netlist_ast.Emux (expect_arg e1, expect_arg e2, expect_arg e3)
+    Netlist_ast.Emux (expect_arg e1, expect_arg e2, expect_arg e3)
+  | Ecall ("mux_n", _, [e1; e2; e3]) ->
+    Netlist_ast.Emux (expect_arg e1, expect_arg e2, expect_arg e3)
   | Ecall("select", idx::_, [e]) ->
       Netlist_ast.Eselect (expect_int idx, expect_arg e)
   | Ecall("slice", min::max::_, [e]) ->
