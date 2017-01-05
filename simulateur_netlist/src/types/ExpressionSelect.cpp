@@ -37,9 +37,9 @@ std::vector<Var*> ExpressionSelect::get_dependencies() const
 
 std::string ExpressionSelect::get_instructions_mid() const
 {
-    if(_indice == 0)
+    if(_var->get_size() == _indice+1)
     {
-	return _result->get_cpp_name() + " = " + _var->get_cpp_name() + " % 2;";
+        return _result->get_cpp_name() + " = " + _var->get_cpp_name() + " % 2;";
     }
-    return _result->get_cpp_name() + " = (" + _var->get_cpp_name() + " >> " + std::to_string(_indice) + ") % 2;";
+    return _result->get_cpp_name() + " = (" + _var->get_cpp_name() + " >> " + std::to_string(_var->get_size() - _indice -1) + ") % 2;";
 }
