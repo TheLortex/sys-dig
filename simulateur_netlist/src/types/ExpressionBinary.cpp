@@ -94,7 +94,7 @@ std::string ExpressionBinary::get_instructions_mid() const
     case CONCAT:
 	return _result->get_cpp_name() + " = " + _var1->get_cpp_name() + ";\n"
 	    + _result->get_cpp_name() + " = " + _result->get_cpp_name() + " << " + std::to_string(_var2->get_size()) + ";\n"
-	    + _result->get_cpp_name() + " |= " + _var2->get_cpp_name() + " % " + std::to_string(1 << _var2->get_size()) + ";";
+	    + _result->get_cpp_name() + " |= " + _var2->get_cpp_name() + " % " + std::to_string((uint64_t)(1) << (uint64_t)(_var2->get_size())) + ";";
 	break;
 	
     default:

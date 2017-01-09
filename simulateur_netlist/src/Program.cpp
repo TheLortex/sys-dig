@@ -273,8 +273,12 @@ void Program::write_display_output(std::ofstream &cppfile)
 
     for(Var *v: _output)
     {
-	cppfile << "std::cout << \"" << v->get_name() << " : \" << std::bitset<" << v->get_size() << ">(" << v->get_cpp_name() << " % " << (uint64_t)((uint64_t)(1) << (uint64_t)(v->get_size())) << ") << std::endl;\n";
-	
+        cppfile << "std::cout << \"" << v->get_name() << " : \" << std::bitset<" << v->get_size() << ">(" << v->get_cpp_name();
+        if(v->get_size() < 64)
+        {
+            cppfile << " % " << (uint64_t)((uint64_t)(1) << (uint64_t)(v->get_size()));
+        }
+        cppfile << ") << std::endl;\n";
     }
 
     cppfile << "\n";

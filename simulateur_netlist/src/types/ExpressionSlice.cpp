@@ -46,5 +46,5 @@ std::string ExpressionSlice::get_instructions_mid() const
         return _result->get_cpp_name() + " = " + _var->get_cpp_name() + ";";
     }
 
-    return _result->get_cpp_name() + " = (" + _var->get_cpp_name() + " >> " + std::to_string(_var->get_size() - _begin -1) + ");";
+    return _result->get_cpp_name() + " = (" + _var->get_cpp_name() + " >> " + std::to_string(_var->get_size() - 1 - _end) + ");";
 }

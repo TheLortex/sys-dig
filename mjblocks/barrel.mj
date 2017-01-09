@@ -1,0 +1,163 @@
+(* Transforme un fil en une nappe de 2^n fils avec la même valeur *)
+power<n>(i) = (r:[2^n]) where
+   if n = 0 then
+      r = i;
+   else
+      temp = power<n-1>(i);
+      r = temp . temp;
+   end if
+end where
+
+
+
+
+(* Renvoie 1 si la nappe de fils est nulle, 0 sinon*)
+checkifnullaux<n,p>(i:[n]) = (r) where
+   if p = 0 then
+      r = not i[p]
+   else
+      temp = checkifnullaux<n,p-1>(i);
+      r = temp and (not i[p]);
+   end if
+end where
+
+checkifnull<n>(i:[n]) = (r) where
+   r = checkifnullaux<n,n-1>(i);
+end where
+
+
+
+
+(* do a left logical shift
+   p is the size of the value, and 2^n the number of bits to shift*)
+shiftleft<n,p>(doshift, value:[p]) = (return:[p]) where
+    temp = power<n>(0);
+    valuetemp = value[(2^n)..(p-1)];
+    newvalue = valuetemp . temp;
+    return = mux_n<p>(doshift,value,newvalue);
+end where
+
+
+
+
+(* do a right logical shift
+   p is the size of the value, and 2^n the number of bits to shift*)
+shiftright<n,p>(doshift, valuetoadd, value:[p]) = (return:[p]) where
+    temp = power<n>(valuetoadd);
+    valuetemp = value[0..((p-(2^n))-1)];
+    newvalue = temp . valuetemp;
+    return = mux_n<p>(doshift,value,newvalue);
+end where
+
+
+
+
+(* Calcule un shift gauche
+   renvoie value << shiftvalue ou shiftvalue est en binaire *)
+barrelshiftleft<n,p>(shiftvalue:[n], value:[p]) = (return:[p]) where
+    if n = 1 then
+        return = shiftleft<n-1,p>(shiftvalue[0],value);
+    else
+        temp = barrelshiftleft<n-1,p>(shiftvalue[1..n-1], value);
+        return = shiftleft<n-1,p>(shiftvalue[0], temp);
+    end if
+end where
+
+
+
+
+(* Calcul un shift droit
+   renvoie value >> shiftvalue,
+   ou les bits ajoutés sont égaux à valuetoadd *)
+
+barrelshiftright<n,p>(shiftvalue:[n], valuetoadd, value:[p]) = (return:[p]) where
+   if n = 1 then
+      return = shiftright<n-1,p>(shiftvalue[0],valuetoadd,value);
+   else
+      temp = barrelshiftright<n-1,p>(shiftvalue[1..n-1], valuetoadd, value);
+      return = shiftright<n-1,p>(shiftvalue[0],valuetoadd,temp);
+   end if
+end where
+
+
+
+
+(* effectue une rotation droite de 2^n,
+   sans le carry *)
+
+rotateright<n,p>(dorotation, value:[p]) = (return:[p]) where
+   leftpart = value[0..(p-1)-(2^n)];
+   rightpart = value[p-(2^n)..p-1];
+   rotation = rightpart . leftpart;
+   return = mux_n<p>(dorotation, value, rotation);
+end where
+
+
+
+
+
+(* effectue une rotation droite de taille rotatevalue,
+   sur la valeur value *)
+barrelrotateright<n,p>(rotatevalue:[n], value:[p]) = (return:[p]) where
+   if n = 1 then
+      return = rotateright<n-1,p>(rotatevalue[0], value);
+   else
+      temp = barrelrotateright<n-1,p>(rotatevalue[1..n-1],value);
+      return = rotateright<n-1,p>(rotatevalue[0],temp);
+   end if
+end where
+
+
+
+(* Effectue uen rotation droite de taille rotatevalue,
+   sur la valeur value.
+   La rotation inclue le carry *)
+barrelrotaterightextended<p>(C, value:[p]) = (newC, return:[p]) where
+   newC = value[p-1];
+   temp = rotateright<0,p>(1,value);
+   temp2 = temp[1..p-1];
+   return = C . temp2;
+end where
+
+
+
+
+
+(* barrel unit
+   -C represent the current carry
+   -barrelopcode is the opcode for the barrel instruction
+      -00 code a LSL or ASL operation
+      -01 code a ROR operation
+      -10 code a LSR operation
+      -11 code a ASR operation
+         if opvalue is null, then it is a RRX operation
+   -opvalue is the amount of shifts to do
+   -value is the value to shift*)
+
+barrel<n,p>(C,barrelopcode:[2], opvalue:[n], value:[p]) = (newC, return:[p]) where
+   barrelopcode0 = barrelopcode[0];
+   barrelopcode1 = barrelopcode[1];
+   notbarrelopcode1 = not barrelopcode1;
+   notbarrelopcode0 = not barrelopcode0;
+   isopnull = checkifnull<n>(opvalue);
+
+   isSR = barrelopcode0;
+   isLSL = notbarrelopcode0 and notbarrelopcode1;
+   isROR = notbarrelopcode0 and barrelopcode1;
+   isRRX = isROR and isopnull;
+
+   LSL = barrelshiftleft<n,p>(opvalue, value);
+   SR = barrelshiftright<n,p>(opvalue, barrelopcode1 and opvalue[0],value);
+   ROR = barrelrotateright<n,p>(opvalue, value);
+   (tempC, RRX) = barrelrotaterightextended<p>(C,value);
+
+   temp = mux_n<p>(isSR,LSL, SR);
+   temp2 = mux_n<p>(isROR, temp, ROR);
+   return = mux_n<p>(isRRX, temp2, RRX);
+   newC = mux(isRRX, C, tempC);
+end where
+
+
+main(barrelcode:[2], opvalue:[2], value:[8], C) = (newC, return:[8]) where
+   (newC, return) = barrel<2,8>(C, barrelcode, opvalue, value);
+end where
