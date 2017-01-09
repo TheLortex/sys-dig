@@ -1,0 +1,7 @@
+
+MOV r2, #2048
+ADD r1, r2, r2
+EORs r1, r1, r1
+ADD rF,r2,r1,LSL #13
+ADDEQ r1,r2,r3
+ADDNQs r1,r2,r3
