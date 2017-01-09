@@ -47,5 +47,5 @@ std::vector<Var*> ExpressionMux::get_dependencies() const
 
 std::string ExpressionMux::get_instructions_mid() const
 {
-    return _result->get_cpp_name() + " = " + _varc->get_cpp_name() + " ? " + _var1->get_cpp_name() + " : " + _var2->get_cpp_name() + ";\n";
+    return _result->get_cpp_name() + " = " + _varc->get_cpp_name() + " ? " + _var2->get_cpp_name() + " : " + _var1->get_cpp_name() + ";\n";
 }

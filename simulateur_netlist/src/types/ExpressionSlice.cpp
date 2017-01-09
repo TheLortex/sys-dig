@@ -41,10 +41,10 @@ std::vector<Var*> ExpressionSlice::get_dependencies() const
 
 std::string ExpressionSlice::get_instructions_mid() const
 {
-    if(_begin == 0)
+    if(_end == _var->get_size()-1)
     {
-	return _result->get_cpp_name() + " = " + _var->get_cpp_name() + ";";
+        return _result->get_cpp_name() + " = " + _var->get_cpp_name() + ";";
     }
 
-    return _result->get_cpp_name() + " = (" + _var->get_cpp_name() + " >> " + std::to_string(_begin) + ");";
+    return _result->get_cpp_name() + " = (" + _var->get_cpp_name() + " >> " + std::to_string(_var->get_size() - 1 - _end) + ");";
 }

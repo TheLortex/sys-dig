@@ -1,0 +1,25 @@
+(* Conditionnement des instructions
+   Renvoie 0 si l'opération en cours doit être effectué, 1 sinon *)
+
+(* Testé sur le simulateur, semble correct *)
+testcondition(t:[4],Z,C,N,V)=(s) where
+    notZ = not Z;
+    notNxorV = not (N xor V);
+    t0 = t[0];
+    t1 = t[1];
+    t2 = t[2];
+    t3 = t[3];
+
+    temp000 = mux(t2, Z, C);
+    temp001 = mux(t2, N, V);
+    temp010 = mux(t2, C and notZ, notNxorV);
+    temp011 = mux(t2, notZ and notNxorV, 0);
+
+    temp00 = mux(t1, temp000, temp001);
+    temp01 = mux(t1, temp010, temp011);
+
+    temp0 = mux(t0, temp00, temp01);
+
+    s = mux(t3,temp0, not temp0);
+end where
+
