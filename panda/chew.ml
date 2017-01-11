@@ -3,92 +3,103 @@ open Format
 open Shoots
 open Ast
 
-(* phase 1 : allocation des variables 
-
 exception VarUndef of string
 
-let (genv : (string, unit) Hashtbl.t) = Hashtbl.create 17
+module Smap=Map.Make(String)
 
-module Smap = Map.Make(String)
+let cpt = ref 0
 
-type local_env = ident Smap.t
+let rec compile_expr cc aliases  = function
+ 	| Imm i ->
+		mov(cond cc)(imm i)(reg '2')
+		
+	| Reg r ->
+		mov(cond cc)(reg r)(reg '2')
 
-let rec alloc_expr env next = function
-  | PCst i ->
-    Cst i, next
+ 	| Pointer x ->
+ 	 	(try let r = Smap.find x aliases in mov(cond cc)(reg r)(reg '2') 
+ 	 	with _-> mov(cond cc)(lab x)(reg '2'))
+ 	 	
+ 	| Val (x, e) ->
+ 		(try let r = Smap.find x aliases in mov(cond cc)(reg r)(reg '3')
+ 		with _-> mov(cond cc)(lab x)(reg '3') ) ++
+ 	 	compile_expr cc aliases e ++
+ 	 	mov(cond cc)(ind ~index:"%3" "%2")(reg '2')
 
-  | PVar x -> if Smap.mem x env then LVar (Smap.find x env), next
-    else if Hashtbl.mem genv x then GVar x, next
-    else raise(VarUndef(x))
-
-  | PBinop (o, e1, e2)->
-    let (expr1,nnext) = alloc_expr env next e1 in
-    let (expr2,nnnext) = alloc_expr env nnext e2 in
-    Binop (o, expr1, expr2), nnnext
-
-  | PLetin (x, e1, e2) ->
-    let (expr1,nnext) = alloc_expr env next e1 in
-    let nenv = Smap.add x (nnext) env in
-    let nnext = nnext + 8 in
-    let (expr2,next) = alloc_expr nenv nnext e2 in
-    Letin (Smap.find x nenv, expr1, expr2), next
-
-  | PCall (f, l) ->
-    let g (exprl,next) e = let (expr,next) = alloc_expr env next e in expr::exprl,next in
-    let exprl,nnext = List.fold_left g ([],next) l in
-    Call (f, exprl), nnext
-
-let alloc_stmt = function
-  | PSet (x, e) ->
-    let (expr,next) = alloc_expr Smap.empty 0 e in
-    Hashtbl.replace genv x (); Set (x, expr, next)
-
-  | PFun (f, l, e) ->
-    let env,i = List.fold_left (fun (env,i) id -> Smap.add id i env,i+8) (Smap.empty,0) l in
-    let (expr,next) = alloc_expr env i e in
-    Fun (f, expr, next)
-
-  | PPrint e ->
-    let e, fpmax = alloc_expr Smap.empty 0 e in
-    Print (e, fpmax)
-
-let alloc = List.map alloc_stmt
-
-(******************************************************************************)
-(* phase 2 : production de code *)
-
-let popn n = addq (imm n) (reg rsp)
-let pushn n = subq (imm n) (reg rsp)
-
-let rec compile_expr = function
-  | Cst i ->
-      pushq (imm i)
-
-  | LVar fp_x ->
-      pushq (ind ~ofs:fp_x rbp)
-
-  | GVar x ->
-      pushq (lab x)
-
-  | Binop (o, e1, e2)->
-      compile_expr e1 ++
-      compile_expr e2 ++
-      popq rbx ++ popq rax ++
+ 	| Binop (e1, o, e2)->
+      compile_expr cc aliases e2 ++
+      push(cond cc)(reg '2') ++
+      compile_expr cc aliases e1 ++
+      pop(cond cc)"%3" ++
       (match o with
-        | Add -> addq (reg rbx) (reg rax)
-        | Sub -> subq (reg rbx) (reg rax)
-        | Mul -> imulq (reg rbx) (reg rax)
-        | Div -> cqto ++ idivq (reg rbx)) ++
-       pushq (reg rax)
+        | Add -> add(cond cc)(reg '3') (reg '2')
+        | Sub -> sub(cond cc)(reg '3') (reg '2')
+        | Mul -> mul(cond cc)(reg '3') (reg '2')
+        | Div -> failwith "jkkkkkkkkkeghqbveovfybioeuqrg"
+        | Rem -> failwith "jkygsdjkfhgvjhdgqfouygoruihyg"
+        | And -> ands(cond cc)(reg '3') (reg '2')
+        | Or -> ors(cond cc)(reg '3') (reg '2')
+        | Nand -> nands(cond cc)(reg '3') (reg '2')
+        | Xor -> xors(cond cc)(reg '3') (reg '2') 
+        | Eq -> sub(cond cc)(reg '3')(reg '2'))
+        
+    | Not e ->
+    	compile_expr cc aliases e ++
+    	not(cond cc)(reg '2')
 
-  | Letin (ofs, e1, e2) ->
-      compile_expr e1 ++
-      popq rax ++ movq (reg rax) (ind ~ofs rbp) ++
-      compile_expr e2
+let compile_cond aliases c = failwith "no cond yet"
 
-  | Call (f, l) ->
-      failwith "à compléter"
+let rec compile_instr cc = function
+	| Label (x,_) -> label x
+	| Goto (x,_) -> jmp(cond cc)x
+	| Rename (r,x,_) -> nop
+	| Set (r,e,aliases) -> compile_expr cc aliases e ++ mov(cond cc)(reg '2')(reg r)
+	| Store (r,e,aliases) -> compile_expr cc aliases e ++
+		store(cond cc)(reg r)(ind "%2")
+	| Load (r,e,aliases) -> compile_expr cc aliases e ++
+		load(cond cc)(ind "%2")(reg r)
+	| Locif (c,thenil,elseil,aliases) -> if cc <> AL then failwith "Local if is nested!" else
+		let code,thencc,elsecc = compile_cond aliases c in
+		code ++ compile_block thencc thenil ++ compile_block elsecc thenil
+	| If (c,thenil,elseil,aliases) -> if cc <> AL then failwith "Nested if in local if!" else
+		let thencode = compile_block AL thenil and elsecode = compile_block AL elseil in
+		let ccode,thenflag,elseflag = compile_cond aliases c in
+		incr cpt; let s = string_of_int !cpt in
+		ccode ++ jmp (cond elseflag)("else"^s) ++ thencode ++ jmp (cond AL)("end"^s) ++
+		label ("else"^s) ++ elsecode ++ label("end"^s)
+	| While (c,block,aliases) -> if cc <> AL then failwith "Nested while in local if!" else
+		let code = compile_block AL block in
+		let ccode,contflag,exitflag = compile_cond aliases c in
+		incr cpt; let s = string_of_int !cpt in
+		label ("while"^s) ++ ccode ++ jmp (cond exitflag)("end"^s) ++
+		code ++ jmp (cond AL)("while"^s) ++ label ("end"^s)
+and compile_block cc = List.fold_left (fun code instr -> code ++ compile_instr cc instr) nop
 
+let oblig_code = nop,
+	nop
+
+let compile_program p ofile =
+  let code = compile_block AL p in
+  let pre,post = oblig_code in
+  let p =
+    { text =
+        label "main" ++
+        pre ++
+        code ++
+        post;
+      data =
+        nop
+    }
+  in
+  let f = open_out ofile in
+  let fmt = formatter_of_out_channel f in
+  Shoots.print_program fmt p;
+  fprintf fmt "@?";
+  close_out f
+
+
+
+(*
 let compile_stmt (codefun, codemain) = function
   | Set (x, e, fpmax) ->
     let code = compile_expr e in
@@ -135,4 +146,4 @@ let compile_program p ofile =
   let fmt = formatter_of_out_channel f in
   X86_64.print_program fmt p;
   fprintf fmt "@?";
-  close_out f *)
+  close_out f*)
