@@ -4,7 +4,9 @@
 
 open Format
 
-type register =  string
+type reg =  string
+
+type cc = EQ|NEQ|CS|CC|MI|PL|VS|VC|HI|LS|GE|LT|GT|LE|AL
 
 let r0 = "%0"
 let r1 = "%1"
@@ -25,13 +27,31 @@ let rF = "%F"
 
 type label = string
 
-type 'size operand = formatter -> unit -> unit
+type operand = formatter -> unit -> unit
 
-let reg r = fun fmt () -> fprintf fmt "%s" r
+let cond cc = let cs = match cc with
+	|EQ->"eq"
+	|NEQ->"neq"
+	|CS->"cs"
+	|CC->"cc"
+	|MI->"mi"
+	|PL->"pl"
+	|VS->"vs"
+	|VC->"vc"
+	|HI->"hi"
+	|LS->"ls"
+	|GE->"ge"
+	|LT->"lt"
+	|GT->"gt"
+	|LE->"le"
+	|AL->"al"
+	in fun fmt () -> fprintf fmt "%s" cs
+
+let reg r = fun fmt () -> fprintf fmt "&%c" r
 let imm i = fun fmt () -> fprintf fmt "$%i" i
-let ind ?(ofs=0) ?index ?(scale=1) r = fun fmt () -> match index with
+let ind ?(ofs=0) ?index r = fun fmt () -> match index with
   | None -> fprintf fmt "%d(%s)" ofs r
-  | Some r1 -> fprintf fmt "%d(%s,%s,%d)" ofs r r1 scale
+  | Some r1 -> fprintf fmt "%d(%s,%s)" ofs r r1
 let lab (l: label) = fun fmt () -> fprintf fmt "%s" l
 let ilab (l: label) = fun fmt () -> fprintf fmt "$%s" l
 
@@ -70,26 +90,26 @@ let pr_ilist fmt l =
 let pr_alist fmt l =
   pr_list fmt (fun fmt (a : label) -> fprintf fmt "%s" a) l
 
-let mov cond a b = ins "mov %a, %a, %a" cond () a () b ()
+let mov cond a b = ins "MOV %a, %a, %a" cond () a () b ()
 
 let lea cond op r = ins "lea %a, %a, %s" cond () op () r
 
-let add cond a b = ins "add %a, %a, %a" cond () a () b ()
+let add cond a b = ins "ADD %a, %a, %a" cond () a () b ()
 
-let sub cond a b = ins "sub %a, %a, %a" cond () a () b ()
+let sub cond a b = ins "SUB %a, %a, %a" cond () a () b ()
 
-let mul cond a b = ins "mul %a, %a, %a" cond () a () b ()
+let mul cond a b = ins "MUL %a, %a, %a" cond () a () b ()
 
 (* DIV? REM?
-let div cond a = ins "idivq %a" a ()
+let div cond a = ins "DIV %a, %a" cond () a ()
 *)
 
-let not cond a = ins "not %a, %a" cond () a ()
+let not cond a = ins "MVN %a, %a" cond () a ()
 
-let ands cond a b = ins "and %a, %a, %a" cond () a () b ()
-let ors cond a b = ins "or %a, %a, %a" cond () a () b ()
-let nands cond a b = ins "nand %a, %a, %a" cond () a () b ()
-let xors cond a b = ins "xor %a, %a, %a" cond () a () b ()
+let ands cond a b = ins "AND %a, %a, %a" cond () a () b ()
+let ors cond a b = ins "ORR %a, %a, %a" cond () a () b ()
+let nands cond a b = ins "BIC %a, %a, %a" cond () a () b ()
+let xors cond a b = ins "EOR %a, %a, %a" cond () a () b ()
 
 let jmp cond (z: label) = ins "jmp %a, %s" cond () z
 
@@ -102,14 +122,17 @@ let ret = ins "ret"
 let cmp cond a b = ins "cmp %a, %a, %a" cond () a () b ()
 let test cond a b = ins "test %a, %a, %a" cond () a () b ()
 
-let label (s : label) = S ("Label" ^ s ^ "\n")
+let label (s : label) = S ("Label " ^ s ^ "\n")
 
 let comment s = S ("#" ^ s ^ "\n")
 
 let dint l = ins ".int %a" pr_ilist l
 
-let pushq a = ins "pushq %a" a ()
-let popq r = ins "popq %s" r
+let push cond a = ins "push %a, %a" cond () a ()
+let pop cond r = ins "pop %a, %s" cond () r
+
+let load cond adr a = ins "LDR %a, %a, %a" cond () adr () a ()
+let store cond a adr = ins "STR %a, %a, %a" cond () a () adr ()
 
 type program = {
   text : [ `text ] asm;
