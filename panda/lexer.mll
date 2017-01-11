@@ -3,7 +3,7 @@
 
 {
   open Lexing
-  open Parser
+  open Bambooparser
 
   exception Lexing_error of string
 
@@ -26,7 +26,7 @@ let space = [' ' '\t']
 
 rule token = parse
   | '\n'    { newline lexbuf; token lexbuf }
-  | '#' [^'\n']* '\n' { newline lexbuf; token lexbuf }
+  | '/' '/' [^'\n']* '\n' { newline lexbuf; token lexbuf }
   | space+  { token lexbuf }
   | ident as id { id_or_kwd id }
   | '+'     { PLUS }
@@ -34,13 +34,15 @@ rule token = parse
   | '*'     { TIMES }
   | '/'     { DIV }
   | '%'		{ REM }
-  | 'r' (reg as r) {REG r}
+  | '&' (reg as r) {REG r}
   | '='     { EQ }
   | '('     { LP }
   | ')'     { RP }
   | ';'		{ ENTER }
   | '<'		{ LOAD }
   | '>'		{ STORE }
+  | '#'		{ VAL }
+  | '.'		{ DOT }
   | integer as s { if (String.length s)>5 then raise (Lexing_error "Constant is too large");
   					 let i = (int_of_string s) in if i>65536 then raise (Lexing_error "Constant is too large") else CST i }
   | eof     { EOF }
