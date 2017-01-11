@@ -1,4 +1,3 @@
-
 (* Analyseur lexical pour bamboo *)
 
 {
