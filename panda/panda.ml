@@ -49,7 +49,7 @@ let () =
 
   (* Par défaut, le fichier cible a le même nom que le fichier source, 
      seule l'extension change *)
-  if !ofile="" then ofile := Filename.chop_suffix !ifile ".bamboo" ^ ".";
+  if !ofile="" then ofile := Filename.chop_suffix !ifile ".bamboo" ^ ".shoots";
   
   (* Ouverture du fichier source en lecture *)
   let f = open_in !ifile in
@@ -63,7 +63,7 @@ let () =
        n'est détectée.
        La fonction Lexer.token est utilisée par Parser.prog pour obtenir 
        le prochain token. *)
-    let p = Parser.prog Lexer.token buf in
+    let p = Bambooparser.prog Bamboolexer.token buf in
     close_in f;
     
     (* On s'arrête ici si on ne veut faire que le parsing *)
@@ -72,9 +72,9 @@ let () =
     (* Compilation de l'arbre de syntaxe abstraite p. Le code machine 
        résultant de cette transformation doit être écrit dans le fichier 
        cible ofile. *)
-   (* Compile.compile_program p !ofile*)
+    Chew.compile_program p !ofile
   with
-    | Lexer.Lexing_error c -> 
+    | Bamboolexer.Lexing_error c -> 
 	(* Erreur lexicale. On récupère sa position absolue et 
 	   on la convertit en numéro de ligne *)
 	localisation (Lexing.lexeme_start_p buf);
@@ -94,4 +94,5 @@ let () =
 	
 
 *)
+
 
