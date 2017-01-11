@@ -1,25 +1,25 @@
 type instr = ADD|ADC|RSB|RSC|CMP|CMN|SUB|SBC|AND|TST|EOR|TEQ|ORR|BIC|NOT|MOV
-type ramop = LDR|STR 
-type cond = EQ|NQ|CS|CC|MI|PL|VS|VC|HI|LS|GE|LT|GT|LE|AL 
-type rot = LSL|LSR|ASR|ROR
+type ramop = LDR|STR
+type cond = EQ|NQ|CS|CC|MI|PL|VS|VC|HI|LS|GE|LT|GT|LE|AL
+type rot = LSL|ASL|LSR|ASR|ROR|RRX
 
-exception IntegerConstantFailed of int 
+exception IntegerConstantFailed of int
 
-let encode_cst i = 
-	let n = ref(0) and c = ref(i) in 
-	while (!c >= 256) do 
+let encode_cst i =
+	let n = ref(0) and c = ref(i) in
+	while (!c >= 256) do
 		if !c mod 4 == 0 then
 			(c := !c / 4; incr n)
-		else 
+		else
 			raise (IntegerConstantFailed i)
-	done; 
-	!n lsl 8 + !c 
+	done;
+	!n lsl 8 + !c
 
 
-let encode_cond cond = 
-	match cond with 
+let encode_cond cond =
+	match cond with
 	| Some cond -> begin
-		match cond with 
+		match cond with
 		| EQ -> 0
 		| NQ -> 1
 		| CS -> 2
@@ -39,8 +39,8 @@ let encode_cond cond =
 	| None -> 15
 
 
-let encode_instr instr = 
-	match instr with 
+let encode_instr instr =
+	match instr with
 	| ADD -> 0
 	| ADC -> 1
 	| RSB -> 2
@@ -52,14 +52,14 @@ let encode_instr instr =
 	| AND -> 8
 	| TST -> 9
 	| EOR -> 10
-	| TEQ -> 11 
+	| TEQ -> 11
 	| ORR -> 12
 	| BIC -> 13
 	| NOT -> 14
 	| MOV -> 15
 
-let encode_reg reg = 
-	match reg with 
+let encode_reg reg =
+	match reg with
 	| '1' -> 1
 	| '2' -> 2
 	| '3' -> 3
@@ -76,5 +76,23 @@ let encode_reg reg =
 	| 'E' -> 14
 	| 'F' -> 15
 
-let encode_shift shift cst = 0 
+let encode_shift shift =
+	match shift with
+	| LSL | ASL -> 0
+	| ROR -> 1
+	| LSR -> 2
+	| ASR -> 3
+	| RRX -> 3
 
+let encode_shift_cst shift cst =
+	if cst > 31 || cst < 0 then raise(IntegerConstantFailed cst);
+	let shift_code = encode_shift shift in
+	if shift = RRX then
+		(shift_code lsl 1)
+	else
+		(cst lsl 3) + (shift_code lsl 1)
+
+let encode_shift_reg shift reg =
+	let shift_code = encode_shift shift
+	and reg_code = encode_reg reg in
+	(reg_code lsl 4) + (shift_code lsl 1) + 1
