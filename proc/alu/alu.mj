@@ -1,4 +1,3 @@
-
 const size = 5
 
 fulladder(a,b,c) = (s, r) where
@@ -51,8 +50,14 @@ end where
 alu<n>(op1:[n], op2:[n], opcode:[4], carry) = (ret:[n],flags:[4]) where
 	p0						= not_n<n>(op1);
 	p1						= not_n<n>(op2);
-	(neg_op1, t)	= incr<n>(p0);
-	(neg_op2, f)	= incr<n>(p1);
+
+
+  carry_negatif = mux(opcode[2] & opcode[3], 0, not(carry));
+
+  (r0, t)	= incr<n>(p0);
+  (r1, f)	= incr<n>(p1);
+	neg_op1	= mux_n<n>(carry_negatif,r0,p0);
+	neg_op2	= mux_n<n>(carry_negatif,r1,p1);
 
 
 	(*Section 0XXX*)
@@ -65,7 +70,8 @@ alu<n>(op1:[n], op2:[n], opcode:[4], carry) = (ret:[n],flags:[4]) where
 	(*0110: SUB*)
 	(*0111: SBC*)
 
-	in1 = mux_n<n>(opcode[1], op2, op1);
+
+	in1 = mux_n<n>(opcode[1],op2, op1);
 	in2 = mux_n<n>(opcode[1],
 					mux_n<n>(opcode[2],op1,neg_op1),
 					mux_n<n>(opcode[2],
@@ -75,7 +81,7 @@ alu<n>(op1:[n], op2:[n], opcode:[4], carry) = (ret:[n],flags:[4]) where
 						 ),
 					 	neg_op2));
 
-	c_in = mux(opcode[1] & not(opcode[2]), mux(opcode[3], 0, carry), 0);
+	c_in = mux(not(opcode[1]) & not(opcode[2]) & opcode[3], 0, carry);
 
 	(r0XXX,f0XXX) = add<n>(in1,in2,c_in);
 
