@@ -1,4 +1,3 @@
-
 /* Analyseur syntaxique pour bamboo */
 
 %{
