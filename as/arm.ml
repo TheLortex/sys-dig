@@ -51,12 +51,12 @@ let encode_instr instr =
 	| SBC -> 7
 	| AND -> 8
 	| TST -> 9
-	| EOR -> 10
-	| TEQ -> 11
-	| ORR -> 12
-	| BIC -> 13
-	| NOT -> 14
-	| MOV -> 15
+	| ORR -> 10
+	| BIC -> 11
+	| NOT -> 12
+	| MOV -> 13
+	| EOR -> 14
+	| TEQ -> 15
 
 let encode_reg reg =
 	match reg with
