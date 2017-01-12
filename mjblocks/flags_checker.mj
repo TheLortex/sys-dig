@@ -1,8 +1,7 @@
-(* Conditionnement des instructions
-   Renvoie 0 si l'opération en cours doit être effectué, 1 sinon *)
+(* Check if the current instruction must be executed or not (depending on the flags)
+   Return 1 if the instruction must be executed, 0 otherwise *)
 
-(* Testé sur le simulateur, semble correct *)
-testcondition(t:[4],Z,C,N,V)=(s) where
+test_condition(t:[4],Z,C,N,V)=(s) where
     notZ = not Z;
     notNxorV = not (N xor V);
     t0 = t[0];
@@ -22,4 +21,3 @@ testcondition(t:[4],Z,C,N,V)=(s) where
 
     s = mux(t3,temp0, not temp0);
 end where
-

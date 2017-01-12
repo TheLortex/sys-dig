@@ -1,14 +1,4 @@
-(* Transforme un fil en une nappe de 2^n fils avec la même valeur *)
-power<n>(i) = (r:[2^n]) where
-   if n = 0 then
-      r = i;
-   else
-      temp = power<n-1>(i);
-      r = temp . temp;
-   end if
-end where
-
-
+(* Requires power function *)
 
 
 (* Renvoie 1 si la nappe de fils est nulle, 0 sinon*)
@@ -31,10 +21,15 @@ end where
 (* do a left logical shift
    p is the size of the value, and 2^n the number of bits to shift*)
 shiftleft<n,p>(doshift, value:[p]) = (return:[p]) where
-    temp = power<n>(0);
-    valuetemp = value[(2^n)..(p-1)];
-    newvalue = valuetemp . temp;
-    return = mux_n<p>(doshift,value,newvalue);
+   if 6 <= n then
+      newvalue = power<p>(0);
+      return = mux_n<p>(doshift,value,newvalue);
+   else
+      temp = power<2^n>(0);
+      valuetemp = value[(2^n)..(p-1)];
+      newvalue = valuetemp . temp;
+      return = mux_n<p>(doshift,value,newvalue);
+   end if
 end where
 
 
@@ -43,10 +38,15 @@ end where
 (* do a right logical shift
    p is the size of the value, and 2^n the number of bits to shift*)
 shiftright<n,p>(doshift, valuetoadd, value:[p]) = (return:[p]) where
-    temp = power<n>(valuetoadd);
-    valuetemp = value[0..((p-(2^n))-1)];
-    newvalue = temp . valuetemp;
-    return = mux_n<p>(doshift,value,newvalue);
+   if 6 <= n then
+      newvalue = power<p>(valuetoadd);
+      return = mux_n<p>(doshift,value,newvalue);
+   else
+      temp = power<2^n>(valuetoadd);
+      valuetemp = value[0..((p-(2^n))-1)];
+      newvalue = temp . valuetemp;
+      return = mux_n<p>(doshift,value,newvalue);
+   end if
 end where
 
 
@@ -86,10 +86,14 @@ end where
    sans le carry *)
 
 rotateright<n,p>(dorotation, value:[p]) = (return:[p]) where
-   leftpart = value[0..(p-1)-(2^n)];
-   rightpart = value[p-(2^n)..p-1];
-   rotation = rightpart . leftpart;
-   return = mux_n<p>(dorotation, value, rotation);
+   if 6 <= n then
+      return = value
+   else
+      leftpart = value[0..(p-1)-(2^n)];
+      rightpart = value[p-(2^n)..p-1];
+      rotation = rightpart . leftpart;
+      return = mux_n<p>(dorotation, value, rotation);
+   end if
 end where
 
 
@@ -109,7 +113,7 @@ end where
 
 
 
-(* Effectue uen rotation droite de taille rotatevalue,
+(* Effectue une rotation droite de taille rotatevalue,
    sur la valeur value.
    La rotation inclue le carry *)
 barrelrotaterightextended<p>(C, value:[p]) = (newC, return:[p]) where
@@ -155,9 +159,4 @@ barrel<n,p>(C,barrelopcode:[2], opvalue:[n], value:[p]) = (newC, return:[p]) whe
    temp2 = mux_n<p>(isROR, temp, ROR);
    return = mux_n<p>(isRRX, temp2, RRX);
    newC = mux(isRRX, C, tempC);
-end where
-
-
-main(barrelcode:[2], opvalue:[2], value:[8], C) = (newC, return:[8]) where
-   (newC, return) = barrel<2,8>(C, barrelcode, opvalue, value);
 end where

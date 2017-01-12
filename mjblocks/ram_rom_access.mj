@@ -1,0 +1,27 @@
+(* Requires power function *)
+
+(* Contient deux fonctions permettant de lire et d'écrire dans la RAM *)
+(* Contient aussi une fonction permettant de lire dans la ROM *)
+
+
+(* Lit dans la ram à l'adresse read_addr*)
+
+ram_read<addr_size , word_size>(read_addr:[addr_size])=(sortie:[word_size]) where
+    sortie=ram<addr_size , word_size >(read_addr , 0 , read_addr , power<word_size>(0));
+end where
+
+
+
+(* Ecrit dans la ram à l'adresse addr_size la donnée data *)
+
+ram_write<addr_size , word_size>(do_write, write_addr:[addr_size], data:[word_size]) = (s:[word_size]) where
+	s=ram<addr_size , word_size >(write_addr, do_write, write_addr, data);
+end where
+
+
+
+(* Lit dans la ram à l'adresse read_addr *)
+
+rom_read<addr_size,word_size>(addr_ram:[addr_size]) = (r:[word_size]) where
+    r = rom<addr_size,word_size>(addr_ram);
+end where

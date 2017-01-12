@@ -1,0 +1,21 @@
+(* Constantes nécessaires : reg_size et nb_bit_addr_reg *)
+(* Fonctions nécessaires : ram_read *)
+
+
+(* Contient deux fonctions permettant de lire et d'écrire dans les registres
+   Les registres sont représenté comme des valeurs dans une autre RAM
+   Cela évite de créer un nombre élevé d'opérations mux *)
+
+
+(* Permet de lire la valeur dans le registre numéro reg_addr *)
+
+reg_read(reg_addr:[nb_bit_addr_reg]) = (reg_value:[reg_size]) where
+    reg_value = ram_read<nb_bit_addr_reg,reg_size>(reg_addr);
+end where
+
+
+(* Permet d'écrire la valeur data dans le registre numéro reg_addr*)
+
+reg_write(do_write, reg_addr:[nb_bit_addr_reg], data:[reg_size]) = (useless:[reg_size]) where
+    useless = ram_write<nb_bit_addr_reg,reg_size>(do_write, reg_addr,data);
+end where

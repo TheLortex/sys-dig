@@ -1,3 +1,0 @@
-romread<addr_size,word_size>(pointer_ram:[word_size]) = (r:[word_size]) where
-    r = rom<addr_size,word_size>(pointer_ram)
-end where

@@ -1,0 +1,82 @@
+const reg_size = 32;
+const nb_bit_addr_reg = 4;
+const ram_addr_size = 6;
+
+#include "power.mj"
+#include "ram_rom_access.mj"
+#include "reg_access.mj"
+#include "flags_checker.mj"
+#include "barrel.mj"
+#include "alu.mj"
+
+
+(* Read op2 from opcode, and return the correct value*)
+
+read_op2(carry, is_immediate, code:[12]) = (c_out, value_out:[reg_size]) where
+
+  (* If op2 is a shifted immediate : *)
+  immediate_value = power<24>(0) . code[4..11];
+  immediate_shift_code = 0 . 1;
+  immediate_shift_value = power<4>(0) . code[0..3];
+
+
+  (* If op2 is a register shifted by an immediate, or by another register *)
+  reg_value = reg_read(code[8..11]);
+  reg_shift_code = code[5..6];
+  reg_shift_reg = reg_read(code[0..3]);
+  reg_shift_value = mux_n<8>(code[7], power<3>(0).code[0..4], reg_shift_reg[24..31]);
+
+
+  value = mux_n<32>(is_immediate, reg_value, immediate_value);
+  shift_code = mux_n<2>(is_immediate, reg_shift_code, immediate_shift_code);
+  shift_value = mux_n<8>(is_immediate, reg_shift_value, immediate_shift_value);
+  (c_out,value_out) = barrel<8, reg_size>(carry,shift_code,shift_value,value);
+end where
+
+
+
+(* main function *)
+
+main() = () where
+
+    (* We set the flags from precedent cycle *)
+    flagN = reg(newFlagN);
+    flagZ = reg(newFlagZ);
+    flagC = reg(newFlagC);
+    flagV = reg(newFlagV);
+
+    (* The program counter is in r15 *)
+    pc = reg_read(1.1.1.1);
+
+    (* The current assembly instruction to execute *)
+    instruction = rom_read<ram_addr_size,32>(pc[0..ram_addr_size-1]);
+
+    (* Conditionnal part of instruction *)
+    cond = instruction[0..3];
+    shouldRun = test_condition(cond,flagZ,flagC,flagN,flagV);
+
+    (* Check if the operation is a ram instruction *)
+    is_ram_op = instruction[5];
+
+    (* If the instruction is an arithmetical operation *)
+    is_immediate = instruction[6];
+    opcode = instruction[7..10];
+    modify_flags = instruction[11];
+    modify_reg = (not(opcode[0]) & opcode[1] & not(opcode[2])) or (opcode[0] & opcode[3] & (opcode[1] xor opcode[2]));
+
+    (* The values of rd, op1 and op2 *)
+    rd_addr = instruction[12..15];
+    r1_addr = instruction[16..19];
+    op1 = reg_read(r1_addr);
+    (newC,op2) = read_op2(flagC, is_immediate, instruction[20..31]); (*Récupère les informations et applique le shift*)
+
+    (alu_output, flags) = alu<reg_size>(op1, op2, opcode, flagC);
+    useless = reg_write(modify_reg & not(is_ram_op),rd_addr, alu_output);
+
+    (* We modify the flags if necessary for next cycle *)
+    f = modify_flags & not(is_ram_op);
+    newFlagN = mux(f,flagN,flags[0]);
+    newFlagZ = mux(f,flagZ,flags[1]);
+    newFlagC = mux(f,flagC,flags[2]);
+    newFlagV = mux(f,flagV,flags[3]);
+end where

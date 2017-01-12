@@ -1,5 +1,3 @@
-const size = 5
-
 fulladder(a,b,c) = (s, r) where
   s = (a ^ b) ^ c;
   r = (a & b) + ((a ^ b) & c);
@@ -104,9 +102,4 @@ alu<n>(op1:[n], op2:[n], opcode:[4], carry) = (ret:[n],flags:[4]) where
 
   ret   = mux_n<n>(opcode[0],r0XXX,r1XXX);
   flags = mux_n<4>(opcode[0],f0XXX,f1XXX);
-end where
-
-
-main(op1:[size], op2:[size], opcode:[4], carry) = (ret:[size],flags:[4]) where
-	(ret, flags) = alu<size>(op1, op2, opcode, carry)
 end where

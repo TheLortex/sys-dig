@@ -1,0 +1,15 @@
+(* Create a n wires which have the same value as the inputed one *)
+
+power<n>(i) = (r:[n]) where
+   if n = 1 then
+      r = i;
+   else
+      if (n/2)*2 = n then
+        temp = power<n/2>(i);
+        r = temp.temp;
+      else
+        temp = power<n/2>(i);
+        r = temp.temp.i
+      end if
+   end if
+end where
