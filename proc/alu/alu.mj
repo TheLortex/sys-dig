@@ -16,7 +16,7 @@ add<n>(a:[n], b:[n], c_in) = (o:[n], f_out:[4]) where
   else
     (s_n1, f_n1) = add<n-1>(a[1..], b[1..], c_in);
     (s_0, c_out) = fulladder(a[0], b[0], f_n1[2]);
-    o = s_0 . s_n1;
+    o = s_0 .s_n1;
 		n = s_0;
 		z = not(s_0) & f_n1[1];
 		c = c_out;

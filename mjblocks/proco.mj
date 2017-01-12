@@ -1,4 +1,29 @@
+const size = 32
 
+lire_registre(code:[4]) = (valeur:[size]) where
+  valeur = ram_reader<4, size>(read_addr);
+end where
+
+ecrire_resultat(valeur:[size], code:[4], ecrire) = () where
+  ram<4, size>(code, ecrire, code, valeur)
+end where
+
+lire_op2(carry, immediat, code:[12]) = (c_out, value:[size]) where
+  (*Cas d'ajout d'une constante shiftée*)
+  shift = code[0..3]
+  constante = code[4..11]
+  (c_imm,res_imm) = barrel<5, size>(carry,0.0,shift.0,power<24>(0). constante);
+
+  (*Cas d'un shift de registre par soit une constante, soit un registre*)
+  reg_value = lire_registre(code[8..11]);
+
+  shift_code = code[5..6];
+  shift_value = mux_n<4>(code[7], code[0..4], lire_registre(code[0..3])[27..31]);
+  (c_reg,res_reg) = barrel<5, size>(carry,shift_code,shift_value,reg_value);
+
+  c_out = mux(immediat, c_reg, c_imm);
+  value = mux_n<size>(immediat, res_reg, res_imm);
+end where
 
 (* fonction principale*)
 main() = () where
@@ -15,9 +40,24 @@ main() = () where
     cond = instruction[0..3];
     shouldRun = testscondition(cond,flagZ,flagC,flagN,flagV);
 
-    
-    newFlagN = 0;
-    newFlagZ = 0;
-    newFlagC = 0;
-    newFlagV = 0;   
+    ram_op = instruction[5];
+
+    (*Dans le cas d'une instruction ALU*)
+    immediat = instruction[6];
+    opcode = instruction[7..10];
+    modifier_flags = instruction[11];
+    modifier_registre = (not(opcode[0]) & opcode[1] & not(opcode[2])) or (opcode[0] & opcode[3] & (opcode[1] xor opcode[2]));
+
+    rd = instruction[12..15];
+    op1 = lire_registre(instruction[16..19]);
+    op2 = lire_op2(immediat, instruction[20..31]); (*Récupère les informations et applique le shift*)
+
+    (resultat, flags) = alu<size>(op1, op2, opcode, flagC);
+    ecrire_resultat(resultat, rd, modifier_registre & not(ram_op));
+
+    f = modifier_flags & not(ram_op);
+    newFlagN = mux(f,flagN,flags[0]);
+    newFlagZ = mux(f,flagZ,flags[1]);
+    newFlagC = mux(f,flagC,flags[2]);
+    newFlagV = mux(f,flagV,flags[3]);
 end where
