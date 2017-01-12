@@ -1,0 +1,42 @@
+'scopeName': 'source.minijazz'
+'name': 'Minijazz'
+'fileTypes': ['mj']
+'patterns': [
+    {
+        'match': '\\b(([0-9]+\\.?[0-9]*)|(\\.[0-9]+))\\b'
+        'name': 'constant.numeric.minijazz'
+    },
+    {
+        'match': '\\b(\\w+)(<(\\w+)>)?\\s*\\(.*\\).*(where)'
+        'captures':
+            '1':
+                'name': 'entity.name.function.minijazz'
+            '3':
+                'name': 'constant.other.minijazz'
+            '4':
+                'name': 'keyword.control.minijazz'
+          'name': 'meta.function.minijazz'
+    },
+    {
+        'match': '(end where)'
+        'name': 'keyword.control.minijazz'
+    },
+    {
+      'match': '[<\\[](w+)(..)?[>\\]]'
+      'captures':
+        '1':
+            'name': 'constant.other.minijazz'
+        '2':
+            'name': 'keyword.control.minijazz'
+      'name': 'meta.other.minijazz'
+    },
+    {
+      'match': '\\b(if|then|else|end|const)\\b'
+      'name': 'keyword.control.minijazz'
+    },
+    {
+      'match': '(\\b| )(and|or|\\^|&|\\.|mux|not|and_n|or_n|mux_n|not_n|xor_n|xor|\\+)(\\b| )'
+      'name': 'entity.name.type.variant.ocaml'
+    }
+
+]
