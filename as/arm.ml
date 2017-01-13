@@ -13,7 +13,7 @@ let encode_cst i =
 		else
 			raise (IntegerConstantFailed i)
 	done;
-	!n lsl 8 + !c
+	(if (!n = 0) then 0 else (16-(!n))) lsl 8 + !c
 
 
 let encode_cond cond =
