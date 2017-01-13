@@ -46,7 +46,7 @@ instruction:
 	and shift = match shift with | Some (rot,i) -> encode_shift_cst rot i| None -> 0
 	and s = match s with | Some _ -> 1 | None -> 0
 	in
-	(cond lsl 28) + (1 lsl 25) + (instr lsl 21) + (s lsl 20) + (rd lsl 16) + (r1 lsl 12) + (shift lsl 4) + r2
+	(cond lsl 28) + (instr lsl 21) + (s lsl 20) + (rd lsl 16) + (r1 lsl 12) + (shift lsl 4) + r2
 	} /*1 ou 2 registres selon l'opération + barrel roll éventuel*/
 | instr=UNARY cond=option(conditional) s=option(setflags) rd=REG COMMA i=CST {
 	let cond = encode_cond cond
@@ -58,7 +58,7 @@ instruction:
 	in
 	(cond lsl 28) + (1 lsl 25) + (instr lsl 21) + (s lsl 20) + (rd lsl 16) + (r1 lsl 12) + cst
 	} /*Constante immédiate dans l'opérande 2 (en appliquant la bonne rotation)*/
-	| instr=UNARY cond=option(conditional) s=option(setflags) rd=REG r2=registre shift=option(shift) {
+| instr=UNARY cond=option(conditional) s=option(setflags) rd=REG r2=registre shift=option(shift) {
 		let cond = encode_cond cond
 		and instr = encode_instr instr
 		and rd = encode_reg rd
