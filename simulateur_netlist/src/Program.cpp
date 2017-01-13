@@ -121,14 +121,8 @@ void Program::compile(std::string const &name)
     //On lit les fichiers contenant les roms
     write_read_roms(cppfile);
 
-    //On lit les variables d'input
-    write_read_variables(cppfile);
-
     //On écrit la boucle principale
     write_iterations(cppfile);
-
-    //On affiche le résultat
-    write_display_output(cppfile);
 
     cppfile << "\n}";
 
@@ -238,8 +232,12 @@ void Program::write_read_variables(std::ofstream &cppfile)
 
 void Program::write_iterations(std::ofstream &cppfile)
 {
-        cppfile << "int VAR;\nstd::cout << \" Number of cycles to calculate \" << std::endl;\nstd::cin>>VAR;\nfor(;VAR>0; --VAR)\n{\n";
-    
+    cppfile << "int VAR;\nstd::cout << \" Number of cycles to calculate \" << std::endl;\nstd::cin>>VAR;\nfor(;VAR>0; --VAR)\n{\n";
+
+
+    //On lit les variables d'input
+    write_read_variables(cppfile);
+
     for(Expression *e: _expressions)
     {
 	try
@@ -264,6 +262,10 @@ void Program::write_iterations(std::ofstream &cppfile)
 	}
 	catch(std::string e){}
     }
+
+    //On affiche le résultat
+    write_display_output(cppfile);
+    cppfile << "std::cout << std::endl << std::endl;\n";
     cppfile << "}\n\n";
 }
 
