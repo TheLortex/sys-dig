@@ -17,8 +17,8 @@ let options =
 
 let output_fat_binary_int ofile i =
   let rec aux n p =
-    if n == 0 then ()
-    else (aux (n-1) (p/2); output_char ofile (if (p mod 2 == 0) then '0' else '1'))
+    if n = 0 then ()
+    else (aux (n-1) (p/2); output_char ofile (if (p mod 2 = 0) then '0' else '1'))
   in
     aux 32 i; output_char ofile '\n'
 

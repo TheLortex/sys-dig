@@ -1,3 +1,4 @@
+const ram_value_size = 32;
 const reg_size = 32;
 const nb_bit_addr_reg = 4;
 const ram_addr_size = 6;
@@ -8,6 +9,7 @@ const ram_addr_size = 6;
 #include "flags_checker.mj"
 #include "barrel.mj"
 #include "alu.mj"
+#include "increment.mj"
 
 
 (* Read op2 from opcode, and return the correct value*)
@@ -37,7 +39,7 @@ end where
 
 (* main function *)
 
-main() = () where
+main() = (r0:[32],r1:[32],r2:[32],r3:[32],r4:[32],instruction:[32],pc:[32], newFlagN,newFlagZ,newFlagC,newFlagV) where
 
     (* We set the flags from precedent cycle *)
     flagN = reg(newFlagN);
@@ -46,37 +48,67 @@ main() = () where
     flagV = reg(newFlagV);
 
     (* The program counter is in r15 *)
-    pc = reg_read(1.1.1.1);
+    temp1 = 1.1;
+    pc_addr = temp1.temp1;
+    pc = reg_read(pc_addr);
 
     (* The current assembly instruction to execute *)
-    instruction = rom_read<ram_addr_size,32>(pc[0..ram_addr_size-1]);
+    instruction = rom_read<ram_addr_size,ram_value_size>(pc[reg_size-ram_addr_size..reg_size-1]);
 
     (* Conditionnal part of instruction *)
     cond = instruction[0..3];
     shouldRun = test_condition(cond,flagZ,flagC,flagN,flagV);
 
-    (* Check if the operation is a ram instruction *)
-    is_ram_op = instruction[5];
+
+    (* Find the current instruction type to execute *)
+    is_ram_instruction = instruction[5];
+    is_logical_instruction = (not instruction[4]) & (not instruction[5]);
+    is_branch_instruction = instruction[4] & (not instruction[5]) & instruction[6];
+
 
     (* If the instruction is an arithmetical operation *)
     is_immediate = instruction[6];
-    opcode = instruction[7..10];
+    opcode_logical_instruction = instruction[7..10];
     modify_flags = instruction[11];
-    modify_reg = (not(opcode[0]) & opcode[1] & not(opcode[2])) or (opcode[0] & opcode[3] & (opcode[1] xor opcode[2]));
-
-    (* The values of rd, op1 and op2 *)
+    modify_reg = (not(opcode_logical_instruction[0]) & opcode_logical_instruction[1] & not(opcode_logical_instruction[2])) or (opcode_logical_instruction[0] & opcode_logical_instruction[3] & (opcode_logical_instruction[1] xor opcode_logical_instruction[2]));
     rd_addr = instruction[12..15];
     r1_addr = instruction[16..19];
     op1 = reg_read(r1_addr);
     (newC,op2) = read_op2(flagC, is_immediate, instruction[20..31]); (*Récupère les informations et applique le shift*)
 
-    (alu_output, flags) = alu<reg_size>(op1, op2, opcode, flagC);
-    useless = reg_write(modify_reg & not(is_ram_op),rd_addr, alu_output);
+    (* If the instruction is a branching operation *)
+    branch_offset = power<8>(instruction[8]) . instruction[8..31];
+    is_branch_and_link = instruction[7];
+    temp2 = 0.0;
+    opcode_branch = temp2.temp2;
+
+
+    (* ALU operations *)
+    alu_input_1 = mux_n<reg_size>(is_branch_instruction,op1,pc);
+    alu_input_2 = mux_n<reg_size>(is_branch_instruction,op2,branch_offset);
+    alu_opcode_logical_instruction = mux_n<4>(is_branch_instruction,opcode_logical_instruction,opcode_branch);
+    (alu_output, flags) = alu<reg_size>(op1, op2, opcode_logical_instruction, flagC);
+    
+
+    pcincr = increment<reg_size>(1,pc);
+
+    useless = reg_write(modify_reg & is_logical_instruction,rd_addr, alu_output);
+    useless2 = reg_write(is_branch_instruction, pc_addr, alu_output);
+    useless3 = reg_write(is_branch_instruction & is_branch_and_link, 1.1.1.0, pc);
+    useless4 = reg_write(not is_branch_instruction, pc_addr, pcincr);
+
 
     (* We modify the flags if necessary for next cycle *)
-    f = modify_flags & not(is_ram_op);
+    f = modify_flags & not(is_ram_instruction);
     newFlagN = mux(f,flagN,flags[0]);
     newFlagZ = mux(f,flagZ,flags[1]);
     newFlagC = mux(f,flagC,flags[2]);
     newFlagV = mux(f,flagV,flags[3]);
+
+    r0 = reg_read(0.0.0.0);
+    r1 = reg_read(0.0.0.1);
+    r2 = reg_read(0.0.1.0);
+    r3 = reg_read(0.0.1.1);
+    r4 = reg_read(0.1.0.0);
+    r5 = reg_read(0.1.0.1);
 end where
