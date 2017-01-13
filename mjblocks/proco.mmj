@@ -39,7 +39,7 @@ end where
 
 (* main function *)
 
-main() = (r0:[32],r1:[32],r2:[32],r3:[32],r4:[32],instruction:[32],pc:[32], newFlagN,newFlagZ,newFlagC,newFlagV) where
+main() = (r0:[32],r1:[32],r2:[32],r3:[32],r4:[32],instruction:[32],pc:[32], modify_reg, newFlagN,newFlagZ,newFlagC,newFlagV) where
 
     (* We set the flags from precedent cycle *)
     flagN = reg(newFlagN);
@@ -70,7 +70,13 @@ main() = (r0:[32],r1:[32],r2:[32],r3:[32],r4:[32],instruction:[32],pc:[32], newF
     is_immediate = instruction[6];
     opcode_logical_instruction = instruction[7..10];
     modify_flags = instruction[11];
-    modify_reg = (not(opcode_logical_instruction[0]) & opcode_logical_instruction[1] & not(opcode_logical_instruction[2])) or (opcode_logical_instruction[0] & opcode_logical_instruction[3] & (opcode_logical_instruction[1] xor opcode_logical_instruction[2]));
+
+    is_cmn_or_cmp = (not opcode_logical_instruction[0]) and opcode_logical_instruction[1] and (not opcode_logical_instruction[2]);
+    is_tst = opcode_logical_instruction[0] and (not opcode_logical_instruction[1]) and (not opcode_logical_instruction[2]) and opcode_logical_instruction[3];
+    is_teq = opcode_logical_instruction[0] and opcode_logical_instruction[1] and opcode_logical_instruction[2] and opcode_logical_instruction[3];
+    modify_reg = not (is_cmn_or_cmp or is_tst or is_teq);
+
+
     rd_addr = instruction[12..15];
     r1_addr = instruction[16..19];
     op1 = reg_read(r1_addr);
@@ -87,7 +93,7 @@ main() = (r0:[32],r1:[32],r2:[32],r3:[32],r4:[32],instruction:[32],pc:[32], newF
     alu_input_1 = mux_n<reg_size>(is_branch_instruction,op1,pc);
     alu_input_2 = mux_n<reg_size>(is_branch_instruction,op2,branch_offset);
     alu_opcode_logical_instruction = mux_n<4>(is_branch_instruction,opcode_logical_instruction,opcode_branch);
-    (alu_output, flags) = alu<reg_size>(op1, op2, opcode_logical_instruction, flagC);
+    (alu_output, flags) = alu <reg_size>(op1, op2, opcode_logical_instruction, flagC);
     
 
     pcincr = increment<reg_size>(1,pc);
