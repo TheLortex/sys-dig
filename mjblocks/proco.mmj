@@ -19,7 +19,7 @@ read_op2(carry, is_immediate, code:[12]) = (c_out, value_out:[reg_size]) where
   (* If op2 is a shifted immediate : *)
   immediate_value = power<24>(0) . code[4..11];
   immediate_shift_code = 0 . 1;
-  immediate_shift_value = power<4>(0) . code[0..3];
+  immediate_shift_value = power<3>(0) . code[0..3] . 0;
 
 
   (* If op2 is a register shifted by an immediate, or by another register *)

@@ -1,0 +1,12 @@
+(* Increment a value*)
+
+increment<n>(carry,value:[n]) = (result:[n]) where
+   if n = 0 then
+      result = [];
+   else
+      next_bit = value[n-1];
+      new_bit = carry xor next_bit;
+      newcarry = carry and next_bit;
+      result = increment<n-1>(newcarry,value[0..n-2]) .  new_bit;
+   end if
+end where
