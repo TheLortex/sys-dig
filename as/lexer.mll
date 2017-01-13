@@ -8,29 +8,36 @@
 
   exception Lexing_error of string
 
+let kwd x = (fun (y,z)-> KWD (x,y,z))
+let unary x = (fun (y,z) -> UNARY (x,y,z))
+let ram x = (fun (y,z) -> RAM (x,y,z))
+let rot x = (fun (y,z) -> ROT x)
+let branch x = (fun (y,z) -> BRANCH (x,y,z))
+
   let kwd_tbl = [
-    "ADD",KWD ADD;
-    "ADC",KWD ADC;
-    "RSB",KWD RSB;
-    "RSC",KWD RSC;
-    "CMP",KWD CMP;
-    "CMN",KWD CMN;
-    "SUB",KWD SUB;
-    "SBC",KWD SBC;
-    "AND",KWD AND;
-    "TST",KWD TST;
-    "EOR",KWD EOR;
-    "TEQ",KWD TEQ;
-    "ORR",KWD ORR;
-    "BIC",KWD BIC;
-    "NOT",UNARY NOT;
-    "MOV",UNARY MOV;
-    "LDR",RAM LDR;
-    "STR",RAM STR;
-    "LSL",ROT LSL;
-    "LSR",ROT LSR;
-    "ASR",ROT ASR;
-    "ROR",ROT ROR]
+    "ADD",kwd ADD;
+    "ADC",kwd ADC;
+    "RSB",kwd RSB;
+    "RSC",kwd RSC;
+    "CMP",unary CMP;
+    "CMN",unary CMN;
+    "SUB",kwd SUB;
+    "SBC",kwd SBC;
+    "AND",kwd AND;
+    "TST",unary TST;
+    "EOR",kwd EOR;
+    "TEQ",unary TEQ;
+    "ORR",kwd ORR;
+    "BIC",kwd BIC;
+    "NOT",unary NOT;
+    "MOV",unary MOV;
+    "LDR",ram LDR;
+    "STR",ram STR;
+    "LSL",rot LSL;
+    "LSR",rot LSR;
+    "ASR",rot ASR;
+    "ROR",rot ROR]
+
   let cond_tbl = [
     "EQ",EQ;
     "NQ",NQ;
@@ -49,6 +56,28 @@
     "AL",AL;
   ]
 
+  exception Invalid
+
+let decode ident =
+  let strlen = String.length ident in
+  let decode_end ident =
+    match String.length ident with
+    | 0 -> (AL, false)
+    | 1 -> (AL,if ident.[0] <> 'S' then raise Invalid else true)
+    | 2 -> (List.assoc ident cond_tbl, false)
+    | 3 -> (if ident.[2] <> 'S' then raise Invalid;List.assoc (String.sub ident 0 2) cond_tbl, true)
+    | _ -> raise Invalid
+  in
+  let size, res = (
+    try
+     3,List.assoc (String.sub ident 0 3) kwd_tbl
+   with
+   | Not_found ->
+     if (String.sub ident 0 2) = "BL" then (2,branch BL)
+     else begin
+       if ident.[0] = 'B' then (1,branch B) else (raise Invalid)
+     end) in
+  res (decode_end (String.sub ident size (strlen - size)))
 
   let newline lexbuf =
     let pos = lexbuf.lex_curr_p in
@@ -57,7 +86,7 @@
 
 }
 let reg = ['0'-'9' 'A'-'F']
-let letter = ['A'-'Z']
+let letter = ['A'-'Z' 'a'-'z']
 let digit = ['0'-'9']
 let integer = ['0'-'9']+
 let space = [' ' '\t']
@@ -65,14 +94,15 @@ let space = [' ' '\t']
 rule token = parse
   | '\n'    { newline lexbuf; token lexbuf }
   | '@' [^'\n']* '\n' { newline lexbuf; token lexbuf }
-  | space+  { token lexbuf }
-  | (letter letter letter) as kwd    {try List.assoc kwd kwd_tbl with _ -> raise (Lexing_error ("Instruction keyword not recognized:"^kwd))}
   | 'r' (reg as r) {REG r}
-  | (letter letter) as cond   {try COND (List.assoc cond cond_tbl) with _ -> raise (Lexing_error ("Conditional keyword not recognized"^cond))}
-  | 's'     { S }
+  | space+  { token lexbuf }
+  | letter+ as ident    { print_string (ident^"\n");
+    try decode ident with | _ -> LABEL ident
+  }
   | ','     { COMMA }
+  | ':'     { COLON }
   | '['     { O }
   | ']'     { C }
   | '#' (integer as i)    { CST (int_of_string i) }
   | eof     { EOF }
-  | _ 		{ raise (Lexing_error ("Forbidden character")) }
+  | _ as c 		{ raise (Lexing_error ("Forbidden character "^(String.make 1 c))) }
