@@ -97,11 +97,12 @@ main() = (r0:[32],r1:[32],r2:[32],r3:[32],r4:[32],instruction:[32],pc:[32], modi
     
 
     pcincr = increment<reg_size>(1,pc);
+    rd_is_pc = rd_addr[0] and rd_addr[1] and rd_addr[2] and rd_addr[3];
 
-    useless = reg_write(modify_reg & is_logical_instruction,rd_addr, alu_output);
+    useless = reg_write(modify_reg and is_logical_instruction,rd_addr, alu_output);
     useless2 = reg_write(is_branch_instruction, pc_addr, alu_output);
     useless3 = reg_write(is_branch_instruction & is_branch_and_link, 1.1.1.0, pc);
-    useless4 = reg_write(not is_branch_instruction, pc_addr, pcincr);
+    useless4 = reg_write((not is_branch_instruction) and (not (modify_reg and rd_is_pc)), pc_addr, pcincr);
 
 
     (* We modify the flags if necessary for next cycle *)
