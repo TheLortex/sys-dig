@@ -4,7 +4,7 @@ BLNQ aurevoir
 ADD r1, r2, r2
 EORS r1, r1, r1
 aurevoir:
-ADD rF,r2,r1,LSL #13
-ADDEQ r1,r2,r3
-ADDNQS r1,r2,r3
+ADD r4,r2,r1,LSL #13
+ADD r1,r2,r4
+CMP r1,r1
 BEQ bonjour

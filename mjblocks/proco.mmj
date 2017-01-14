@@ -93,8 +93,8 @@ main() = (r0:[32],r1:[32],r2:[32],r3:[32],r4:[32],instruction:[32],pc:[32], modi
     alu_input_1 = mux_n<reg_size>(is_branch_instruction,op1,pc);
     alu_input_2 = mux_n<reg_size>(is_branch_instruction,op2,branch_offset);
     alu_opcode_logical_instruction = mux_n<4>(is_branch_instruction,opcode_logical_instruction,opcode_branch);
-    (alu_output, flags) = alu <reg_size>(op1, op2, opcode_logical_instruction, flagC);
-    
+    (alu_output, flags) = alu <reg_size>(alu_input_1, alu_input_2, alu_opcode_logical_instruction, flagC);
+
 
     pcincr = increment<reg_size>(1,pc);
     rd_is_pc = rd_addr[0] and rd_addr[1] and rd_addr[2] and rd_addr[3];

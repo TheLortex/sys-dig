@@ -1,0 +1,11 @@
+
+main(n:[4]) = (segments:[7]) where
+  s0 = not(n[2] or n[3]) or ((n[0]^n[1]) and (n[2]^n[3]));
+  s1 = (not(n[1] and n[2] and n[3])) and (n[0] or n[1] or n[2]);
+  s2 = (not n[3]) and (n[2] or (not n[1]));
+  s3 = ((n[0]^n[1]) and (n[2]^n[3])) or (not(n[1] or n[3])) or (not(n[0] or n[1]) and n[2] and n[3]);
+  s4 = not(not(n[0] or n[1] or n[3]) and n[2]);
+  s5 = not((not(n[0]) and n[1]) and (n[2] xor n[3]));
+  s6 = (n[1] xor n[3]) and (not (n[0] or n[2]));
+  segments = s0.s1.s2.s3.s4.s5.s6;
+end where
