@@ -73,10 +73,18 @@ let decode ident =
      (3,List.assoc (if strlen < 3 then raise Not_found else String.sub ident 0 3) kwd_tbl)
    with
    | Not_found ->
-     if (String.sub ident 0 2) = "BL" then (2,branch BL)
-     else begin
-       if ident.[0] = 'B' then (1,branch B) else (raise Invalid)
-     end) in
+   begin
+     match strlen with
+     | 1 when ident.[0] = 'B' -> (1, branch B)
+     | 2 when ident = "BL" -> (2, branch BL)
+     | _ -> begin
+             if (String.sub ident 0 2) = "BL" then (2,branch BL)
+             else begin
+               if ident.[0] = 'B' then (1,branch B) else (raise Invalid)
+             end
+           end
+    end       
+     ) in
   res (decode_end (String.sub ident size (strlen - size)))
 
   let newline lexbuf =
