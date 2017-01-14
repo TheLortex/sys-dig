@@ -33,14 +33,14 @@ read_op2(carry, is_immediate, code:[12]) = (c_out, value_out:[reg_size]) where
   value = mux_n<32>(is_immediate, reg_value, immediate_value);
   shift_code = mux_n<2>(is_immediate, reg_shift_code, immediate_shift_code);
   shift_value = mux_n<8>(is_immediate, reg_shift_value, immediate_shift_value);
-  (c_out,value_out) = barrel<8, reg_size>(carry,shift_code,shift_value,value);
+  (c_out,value_out) = barrel<8, reg_size>(carry,shift_code,shift_value,value,not is_immediate);
 end where
 
 
 
 (* main function *)
 
-main() = (r0:[32],r1:[32],r2:[32], sec0:[7], sec1:[7]) where
+main() = (sec0:[7], sec1:[7], min0:[7], min1:[7], hour0:[7], hour1:[7], day0:[7], day1:[7], month0:[7], month1:[7], isbissextile, lastpc:[32], r14:[32], alu_input_1:[32], alu_input_2:[32], alu_output:[32]) where
 
     (* We set the flags from precedent cycle *)
     flagN = reg(newFlagN);
@@ -102,7 +102,7 @@ main() = (r0:[32],r1:[32],r2:[32], sec0:[7], sec1:[7]) where
 
     useless = reg_write(modify_reg and is_logical_instruction,rd_addr, alu_output);
     useless2 = reg_write(is_branch_instruction, pc_addr, alu_output);
-    useless3 = reg_write(is_branch_instruction & is_branch_and_link, 1.1.1.0, pc);
+    useless3 = reg_write(is_branch_instruction and is_branch_and_link, 1.1.1.0, pcincr);
     useless4 = reg_write((not is_branch_instruction) and (not (modify_reg and rd_is_pc)), pc_addr, pcincr);
 
 
@@ -116,8 +116,23 @@ main() = (r0:[32],r1:[32],r2:[32], sec0:[7], sec1:[7]) where
     r0 = reg_read(0.0.0.0);
     r1 = reg_read(0.0.0.1);
     r2 = reg_read(0.0.1.0);
+    r14 = reg_read(1.1.1.0);
 
-    sec0 = seg7(r0[0..3]);
-    sec1 = seg7(r0[4..7]);
+    c1 = 0;
+    c2 = c1.c1;
+    c3 = c2.0;
 
+    sec0 = seg7(c1.r0[29..31]);
+    sec1 = seg7(r0[25..28]);
+    min0 = seg7(c1.r0[22..24]);
+    min1 = seg7(r0[18..21]);
+    hour0 = seg7(c2.r0[16..17]);
+    hour1 = seg7(r0[12..15]);
+    day0 = seg7(c2.r0[10..11]);
+    day1 = seg7(r0[6..9]);
+    month0 = seg7(c3.r0[5]);
+    month1 = seg7(r0[1..4]);
+    isbissextile = r0[0];
+
+    lastpc = reg_read(1.1.1.1);
 end where

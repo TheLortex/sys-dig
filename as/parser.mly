@@ -79,7 +79,7 @@ instruction:
 		and shift = match shift with | Some (rot,i) -> encode_shift_cst rot i| None -> 0
 		and s = if set_flags then 1 else 0
 		in
-		pc := !pc + 1;Instr((cond lsl 28) + (1 lsl 25) + (instr lsl 21) + (s lsl 20) + (rd lsl 16) + (r1 lsl 12) + (shift lsl 4) + r2)
+		pc := !pc + 1;Instr((cond lsl 28) + (instr lsl 21) + (s lsl 20) + (rd lsl 16) + (r1 lsl 12) + (shift lsl 4) + r2)
 	}
 
 shift:

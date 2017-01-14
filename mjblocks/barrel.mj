@@ -132,13 +132,13 @@ end where
    -barrelopcode is the opcode for the barrel instruction
       -00 code a LSL or ASL operation
       -01 code a ROR operation
+          if opvalue is null and dorrx is true, then it is a RRX operation
       -10 code a LSR operation
       -11 code a ASR operation
-         if opvalue is null, then it is a RRX operation
    -opvalue is the amount of shifts to do
    -value is the value to shift*)
 
-barrel<n,p>(C,barrelopcode:[2], opvalue:[n], value:[p]) = (newC, return:[p]) where
+barrel<n,p>(C,barrelopcode:[2], opvalue:[n], value:[p], dorrx) = (newC, return:[p]) where
    barrelopcode0 = barrelopcode[0];
    barrelopcode1 = barrelopcode[1];
    notbarrelopcode1 = not barrelopcode1;
@@ -148,7 +148,7 @@ barrel<n,p>(C,barrelopcode:[2], opvalue:[n], value:[p]) = (newC, return:[p]) whe
    isSR = barrelopcode0;
    isLSL = notbarrelopcode0 and notbarrelopcode1;
    isROR = notbarrelopcode0 and barrelopcode1;
-   isRRX = isROR and isopnull;
+   isRRX = isROR and isopnull and dorrx;
 
    LSL = barrelshiftleft<n,p>(opvalue, value);
    SR = barrelshiftright<n,p>(opvalue, barrelopcode1 and opvalue[0],value);
