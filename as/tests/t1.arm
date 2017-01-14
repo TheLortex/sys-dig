@@ -1,4 +1,4 @@
-MOV r2, #2048
+B aurevoir
 bonjour:
 BLNQ aurevoir
 ADD r1, r2, r2
