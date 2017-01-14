@@ -15,6 +15,21 @@ let options =
     "-b", Arg.Unit (set_flag),
     "Activer le mode gros"]
 
+
+module Smap = Map.Make(String)
+exception Nop
+
+let code_to_int label_map = function
+  | Instr i -> i
+  | Branch (br,cond,label,pc) ->
+    let icond = encode_cond cond
+    and link = match br with | B -> 0 | BL -> 1
+    and offset = (Smap.find label label_map - pc) land ((2 lsl 23) - 1)
+    in
+    (icond lsl 28) + (5 lsl 25) + (link lsl 24) + offset
+  | _ -> raise Nop
+
+
 let output_fat_binary_int ofile i =
   let rec aux n p =
     if n = 0 then ()
@@ -51,9 +66,17 @@ let output_fat_binary_int ofile i =
     let p = Parser.prog Lexer.token buf in
     close_in f;
     let f = open_out !ofile in
+    let label_map = List.fold_left (fun map elem ->
+        match elem with
+        | DeclLabel (lbl,pc) -> Smap.add lbl pc map
+        | _ -> map) Smap.empty p
+    in
     List.iter (fun i ->
-      if !fat then output_fat_binary_int f i
-              else output_binary_int f i) p;
+        try
+          let i = code_to_int label_map i in
+          if !fat then output_fat_binary_int f i
+          else output_binary_int f i
+        with Nop -> ()) p;
     close_out f;
 
   with

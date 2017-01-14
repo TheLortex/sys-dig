@@ -1,5 +1,18 @@
+<<<<<<< HEAD
 ;
 ;
 ;
 ;
 ;
+=======
+MOV r2, #2048
+bonjour:
+BLNQ aurevoir
+ADD r1, r2, r2
+EORS r1, r1, r1
+aurevoir:
+ADD rF,r2,r1,LSL #13
+ADDEQ r1,r2,r3
+ADDNQS r1,r2,r3
+BEQ bonjour
+>>>>>>> 162ae14ce34cd2f28e8f7a9d5f5fc12932668b7f

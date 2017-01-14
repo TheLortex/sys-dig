@@ -1,9 +1,11 @@
-type instr = ADD|ADC|RSB|RSC|CMP|CMN|SUB|SBC|AND|TST|EOR|TEQ|ORR|BIC|NOT|MOV
-type ramop = LDR|STR
+type instr = LDR|STR|ADD|ADC|RSB|RSC|CMP|B|BL|CMN|SUB|SBC|AND|TST|EOR|TEQ|ORR|BIC|NOT|MOV
 type cond = EQ|NQ|CS|CC|MI|PL|VS|VC|HI|LS|GE|LT|GT|LE|AL
+type instr_dec = instr*cond*bool
 type rot = LSL|ASL|LSR|ASR|ROR|RRX
-
 exception IntegerConstantFailed of int
+
+
+type code = Instr of int | Branch of (instr*cond*string*int) | DeclLabel of (string*int)
 
 let encode_cst i =
 	let n = ref(0) and c = ref(i) in
@@ -18,25 +20,21 @@ let encode_cst i =
 
 let encode_cond cond =
 	match cond with
-	| Some cond -> begin
-		match cond with
-		| EQ -> 0
-		| NQ -> 1
-		| CS -> 2
-		| CC -> 3
-		| MI -> 4
-		| PL -> 5
-		| VS -> 6
-		| VC -> 7
-		| HI -> 8
-		| LS -> 9
-		| GE -> 10
-		| LT -> 11
-		| GT -> 12
-		| LE -> 13
-		| AL -> 15
-	end
-	| None -> 15
+	| EQ -> 0
+	| NQ -> 1
+	| CS -> 2
+	| CC -> 3
+	| MI -> 4
+	| PL -> 5
+	| VS -> 6
+	| VC -> 7
+	| HI -> 8
+	| LS -> 9
+	| GE -> 10
+	| LT -> 11
+	| GT -> 12
+	| LE -> 13
+	| AL -> 15
 
 
 let encode_instr instr =
