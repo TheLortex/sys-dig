@@ -1,5 +1,5 @@
 
-main(n:[4]) = (segments:[7]) where
+seg7(n:[4]) = (segments:[7]) where
   s0 = not(n[2] or n[3]) or ((n[0]^n[1]) and (n[2]^n[3]));
   s1 = (not(n[1] and n[2] and n[3])) and (n[0] or n[1] or n[2]);
   s2 = (not n[3]) and (n[2] or (not n[1]));
