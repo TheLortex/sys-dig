@@ -70,7 +70,7 @@ let decode ident =
   in
   let size, res = (
     try
-     3,List.assoc (String.sub ident 0 3) kwd_tbl
+     (3,List.assoc (if strlen < 3 then raise Not_found else String.sub ident 0 3) kwd_tbl)
    with
    | Not_found ->
      if (String.sub ident 0 2) = "BL" then (2,branch BL)
@@ -85,8 +85,8 @@ let decode ident =
       { pos with pos_lnum = pos.pos_lnum + 1; pos_bol = pos.pos_cnum }
 
 }
-let reg = ['0'-'9' 'A'-'F']
-let letter = ['A'-'Z' 'a'-'z']
+let hex = ['0'-'9' 'A'-'F']
+let letter = ['A'-'Z' 'a'-'z' '_']
 let digit = ['0'-'9']
 let integer = ['0'-'9']+
 let space = [' ' '\t']
@@ -94,15 +94,16 @@ let space = [' ' '\t']
 rule token = parse
   | '\n'    { newline lexbuf; token lexbuf }
   | '@' [^'\n']* '\n' { newline lexbuf; token lexbuf }
-  | 'r' (reg as r) {REG r}
+  | 'r' (hex as r) {REG r}
   | space+  { token lexbuf }
-  | letter+ as ident    { print_string (ident^"\n");
+  | '#' ("0x" hex+ as i)    {CST (int_of_string i)}
+  | '#' (integer as i)    { CST (int_of_string i) }
+  | letter (letter | digit)* as ident    {
     try decode ident with | _ -> LABEL ident
   }
   | ','     { COMMA }
   | ':'     { COLON }
   | '['     { O }
   | ']'     { C }
-  | '#' (integer as i)    { CST (int_of_string i) }
   | eof     { EOF }
   | _ as c 		{ raise (Lexing_error ("Forbidden character "^(String.make 1 c))) }
