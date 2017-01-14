@@ -39,7 +39,7 @@ end where
 
 (* main function *)
 
-main() = (r0:[32],r1:[32],r2:[32],r3:[32],r4:[32],instruction:[32],pc:[32], modify_reg, newFlagN,newFlagZ,newFlagC,newFlagV) where
+main() = (r0:[32],r1:[32],r2:[32]) where
 
     (* We set the flags from precedent cycle *)
     flagN = reg(newFlagN);
