@@ -25,6 +25,9 @@ public:
     //Trie la netlist
     void schedule();
 
+    //Oui
+    void config(std::string cfg);
+
     //Compile la netlist dans un fichier cpp
     void compile(std::string const &file_name);
 private:
@@ -37,11 +40,13 @@ private:
     void write_read_roms(std::ofstream &cppfile);
     void write_iterations(std::ofstream &cppfile);
     void write_display_output(std::ofstream &cppfile);
-    
+
     std::vector<Var*> _input; //Contient les fils d'input
     std::vector<Var*> _output;//Contient les fils d'output
     std::vector<Var*> _vars;//Contient l'ensemble des variables
     std::vector<Var*> _const_vars;//Contient l'ensemble des constantes (pour réduire la mémoire)
+    std::vector<Var*> _display_vars;
+    std::string _display_string;
     std::vector<Expression*> _expressions; //Contient l'ensemble des expressions
 };
 
