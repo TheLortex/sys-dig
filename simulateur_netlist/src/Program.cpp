@@ -15,7 +15,9 @@
 #include <fstream>
 
 Program::Program()
-{}
+{
+
+}
 
 Program::~Program()
 {
@@ -45,13 +47,14 @@ void Program::load(std::string const &file_name)
 {
     Parser parser;
     parser.parse(file_name,this);
+    _display_vars = std::vector<Var*>();
 }
 
 void Program::schedule()
 {
     //Les variables qui vont avoir une affectation
     std::vector<Var*> var_to_calculate;
-    
+
     for(Var *v: _vars)
     {
 	if(!v->has_value())
@@ -97,11 +100,34 @@ void Program::schedule()
     _expressions = new_expressions;
 }
 
+void Program::config(std::string config_string) {
+  _display_string = config_string;
+  std::string k = "";
+  bool invar = false;
+  std::cout << _display_vars.size() << std::endl;
+  for(char c : config_string) {
+    if(invar && c == '|') {
+      invar = false;
+      for(Var* v : _vars) {
+        if(v->get_name() == k) {
+          _display_vars.push_back(v);
+        }
+      }
+    } else if(c == '|') {
+      invar = true;
+      k = "";
+    } else if(invar){
+      k += c;
+    }
+  }
+  std::cout << _display_vars.size() << std::endl;
+}
+
 void Program::compile(std::string const &name)
 {
-    
+
     std::ofstream cppfile (name,std::ios::out | std::ios::trunc);
-    
+
     if(!cppfile.is_open())
     {
 	throw std::string("Can't open file " + name);
@@ -110,8 +136,10 @@ void Program::compile(std::string const &name)
     cppfile << "#include \"stdint.h\"\n";
     cppfile << "#include <fstream>\n";
     cppfile << "#include <bitset>\n";
+    cppfile << "#include <thread>\n";
     cppfile << "#include <array>\n\n";
-    
+    cppfile << "#include \"afficheur/7seg.hpp\"\n";
+
     cppfile << "int main(int argc, char** argv)\n";
     cppfile << "{\n";
 
@@ -123,8 +151,7 @@ void Program::compile(std::string const &name)
 
     //On écrit la boucle principale
     write_iterations(cppfile);
-
-    cppfile << "\n}";
+    cppfile << "\nx.stop();\nt.join();\n}";
 
 
     cppfile.close();
@@ -157,6 +184,8 @@ std::string Program::get_type(int size)
 void Program::write_declare_variables(std::ofstream &cppfile)
 {
     cppfile << "//Declaration of variables\n\n";
+    cppfile << "Segments x(\"" << _display_string << "\");\n";
+    cppfile << "std::thread t(&Segments::run, &x);\nSDL_Delay(300);\n";
 
     for(Var* v: _vars)
     {
@@ -178,7 +207,7 @@ void Program::write_declare_variables(std::ofstream &cppfile)
     }
 
     cppfile << "\n//Declaration of rams\n\n";
-    
+
     for(std::pair<int,int> e: ExpressionRam::get_rams_size())
     {
 	if(e.first <= 16)
@@ -219,7 +248,7 @@ void Program::write_read_variables(std::ofstream &cppfile)
 {
     cppfile << "//Read variables\n\n";
     cppfile << "std::string tempvar;\n";
-    
+
     for(Var *v: _input)
     {
 	cppfile << "std::cout << \"" << v->get_name() << " (taille de la nappe : " << v->get_size() << ") : \";\n";
@@ -281,6 +310,10 @@ void Program::write_display_output(std::ofstream &cppfile)
             cppfile << " % " << (uint64_t)((uint64_t)(1) << (uint64_t)(v->get_size()));
         }
         cppfile << ") << std::endl;\n";
+    }
+
+    for(Var* v : _display_vars) {
+      cppfile << "x.update(\"" << v->get_name() << "\"," << v->get_cpp_name() << ");\n";
     }
 
     cppfile << "\n";
