@@ -1,13 +1,558 @@
-   BL main
+MOV r2, #0x300
+ADD r2, r2, #0x27
+ADD r3, r2, #0x1000
+ADD r4, r3, #0x18000
+ADD r5, r3, #0x70000
+ADD r6, r5, #0x600000
 
-passsecond:
+main:
+MOV r0, #0x4100000
+MOV r1, #0x0
+
+B year0
+
+
+seconds:
+ADD r0, r0, #0x59
+MOV rF, rE
+
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x7
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x7
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x7
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x7
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x7
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
+   ADD r0, r0, #0x1
    ADD r0, r0, #0x1
    MOV rF, rE
 
-pass10second:
-   ADD r0, r0, #0x10
-   MOV rF, rE
 
-main:
-   BL passsecond
-   BL pass10second
+
+
+
+minutes:
+   MOV rD,rE
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, r2
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, r2
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, r2
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, r2
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, r2
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   ADD r0, r0, #0x27
+   BL seconds
+   MOV rF, rD
+
+
+
+
+hours:
+   MOV rC, rE
+   BL minutes
+   ADD r0, r0, r3
+   BL minutes
+   ADD r0, r0, r3
+   BL minutes
+   ADD r0, r0, r3
+   BL minutes
+   ADD r0, r0, r3
+   BL minutes
+   ADD r0, r0, r3
+   BL minutes
+   ADD r0, r0, r3
+   BL minutes
+   ADD r0, r0, r3
+   BL minutes
+   ADD r0, r0, r3
+   BL minutes
+   ADD r0, r0, r3
+   BL minutes
+   ADD r0, r0, r4
+   BL minutes
+   ADD r0, r0, r3
+   BL minutes
+   ADD r0, r0, r3
+   BL minutes
+   ADD r0, r0, r3
+   BL minutes
+   ADD r0, r0, r3
+   BL minutes
+   ADD r0, r0, r3
+   BL minutes
+   ADD r0, r0, r3
+   BL minutes
+   ADD r0, r0, r3
+   BL minutes
+   ADD r0, r0, r3
+   BL minutes
+   ADD r0, r0, r3
+   BL minutes
+   ADD r0, r0, r4
+   BL minutes
+   ADD r0, r0, r3
+   BL minutes
+   ADD r0, r0, r3
+   BL minutes
+   ADD r0, r0, r3
+   BL minutes
+   MOV rF,rC
+
+
+
+days27base:
+   MOV rB, rE
+   BL hours
+   ADD r0, r0, r5
+   BL hours
+   ADD r0, r0, r5
+   BL hours
+   ADD r0, r0, r5
+   BL hours
+   ADD r0, r0, r5
+   BL hours
+   ADD r0, r0, r5
+   BL hours
+   ADD r0, r0, r5
+   BL hours
+   ADD r0, r0, r5
+   BL hours
+   ADD r0, r0, r5
+   BL hours
+   ADD r0, r0, r6
+   BL hours
+   ADD r0, r0, r5
+   BL hours
+   ADD r0, r0, r5
+   BL hours
+   ADD r0, r0, r5
+   BL hours
+   ADD r0, r0, r5
+   BL hours
+   ADD r0, r0, r5
+   BL hours
+   ADD r0, r0, r5
+   BL hours
+   ADD r0, r0, r5
+   BL hours
+   ADD r0, r0, r5
+   BL hours
+   ADD r0, r0, r5
+   BL hours
+   ADD r0, r0, r6
+   BL hours
+   ADD r0, r0, r5
+   BL hours
+   ADD r0, r0, r5
+   BL hours
+   ADD r0, r0, r5
+   BL hours
+   ADD r0, r0, r5
+   BL hours
+   ADD r0, r0, r5
+   BL hours
+   ADD r0, r0, r5
+   BL hours
+   ADD r0, r0, r5
+   BL hours
+   ADD r0, r0, r5
+   BL hours
+   MOV rF, rB
+
+
+
+days28:
+   MOV rB, rE
+   ADD rE, r5, #0x1800000
+   MOV rF, rB
+
+
+
+days29:
+   MOV rB, rE
+   ADD r0, r0, r5
+   BL hours
+   ADD rE, r5, #0x1700000
+   MOV rF, rB
+
+
+
+days30:
+   MOV rB, rE
+   ADD r0, r0, r5
+   BL hours
+   ADD r0, r0, r6
+   BL hours
+   ADD rE, r5, #0x1000000
+   MOV rF, rB
+
+
+
+days31:
+   MOV rB, rE
+   ADD r0, r0, r5
+   BL hours
+   ADD r0, r0, r6
+   BL hours
+   ADD r0, r0, r5
+   BL hours
+   ADD rE, r5, #0xF00000
+   MOV rF, rB
+
+
+
+monthbissext:
+    MOV rA, rE
+    BL days27base
+    BL days31
+    ADD r0, r0, rE
+    BL days29
+    ADD r0, r0, rE
+    B monthafterfebruary
+
+
+
+monthnobissext:
+    MOV rA, rE
+    BL days27base
+    BL days31
+    ADD r0, r0, rE
+    BL days27base
+    BL days28
+    ADD r0, r0, rE
+
+
+monthafterfebruary:
+    BL days27base
+    BL days31
+    ADD r0, r0, rE
+    BL days27base
+    BL days30
+    ADD r0, r0, rE
+    BL days27base
+    BL days31
+    ADD r0, r0, rE
+    BL days27base
+    BL days30
+    ADD r0, r0, rE
+    BL days27base
+    BL days31
+    ADD r0, r0, rE
+    BL days27base
+    BL days31
+    ADD r0, r0, rE
+    BL days27base
+    BL days30
+    ADD rE, rE, #0x18000000
+    ADD r0, r0, rE
+    BL days27base
+    BL days31
+    ADD r0, r0, rE
+    BL days27base
+    BL days30
+    ADD r0, r0, rE
+    BL days27base
+    BL days31
+    MOV rF,rA
+
+
+
+oneyear:
+    TST r1, #0x3
+    MOVNQ r0, #0x0
+    MOVNQ rF, rE
+    TST r1, #0xFF
+    MOVNQ r0, #0x80000000
+    MOVNQ r0, #0x0
+    MOVNQ rF, rE
+    TST r1, #0x300
+    MOVNQ r0, #0x0
+    MOVNQ rF, rE
+    MOV r0, #0x80000000
+    MOV r0, #0x0
+    MOV rF, rE
+
+    TST r1, #0x3
+    BNQ monthnobissext
+    TST r1, #0xFF
+    BNQ monthbissext
+    TST r1, #0x300
+    BNQ monthnobissext
+    B monthbissext
+
+
+
+year3:
+   MOV r9, rE
+   BL oneyear
+   ADD r1, r1, #0x1
+   BL oneyear
+   ADD r1, r1, #0x1
+   BL oneyear
+   ADD r1, r1, #0x1
+   BL oneyear
+   ADD r1, r1, #0x1
+   BL oneyear
+   ADD r1, r1, #0x1
+   BL oneyear
+   ADD r1, r1, #0x1
+   BL oneyear
+   ADD r1, r1, #0x1
+   BL oneyear
+   ADD r1, r1, #0x1
+   BL oneyear
+   ADD r1, r1, #0x1
+   BL oneyear
+   MOV rF, r9
+
+year2:
+   MOV r8, rE
+   BL year3
+   ADD r1, r1, #0x7
+   BL year3
+   ADD r1, r1, #0x7
+   BL year3
+   ADD r1, r1, #0x7
+   BL year3
+   ADD r1, r1, #0x7
+   BL year3
+   ADD r1, r1, #0x7
+   BL year3
+   ADD r1, r1, #0x7
+   BL year3
+   ADD r1, r1, #0x7
+   BL year3
+   ADD r1, r1, #0x7
+   BL year3
+   ADD r1, r1, #0x7
+   BL year3
+   MOV rF, r8
+
+year1:
+   MOV r7, rE
+   BL year2
+   ADD r1, r1, #0x67
+   BL year2
+   ADD r1, r1, #0x67
+   BL year2
+   ADD r1, r1, #0x67
+   BL year2
+   ADD r1, r1, #0x67
+   BL year2
+   ADD r1, r1, #0x67
+   BL year2
+   ADD r1, r1, #0x67
+   BL year2
+   ADD r1, r1, #0x67
+   BL year2
+   ADD r1, r1, #0x67
+   BL year2
+   ADD r1, r1, #0x67
+   BL year2
+   MOV rF, r7
+
+
+year0:
+   BL year1
+   MOV rE, #0x67
+   ADD rE, rE, #0x600
+   ADD r1, r1, rE
+   BL year1
+   MOV rE, #0x67
+   ADD rE, rE, #0x600
+   ADD r1, r1, rE
+   BL year1
+   MOV rE, #0x67
+   ADD rE, rE, #0x600
+   ADD r1, r1, rE
+   BL year1
+   MOV rE, #0x67
+   ADD rE, rE, #0x600
+   ADD r1, r1, rE
+   BL year1
+   MOV rE, #0x67
+   ADD rE, rE, #0x600
+   ADD r1, r1, rE
+   BL year1
+   MOV rE, #0x67
+   ADD rE, rE, #0x600
+   ADD r1, r1, rE
+   BL year1
+   MOV rE, #0x67
+   ADD rE, rE, #0x600
+   ADD r1,
+   r1, rE
+   BL year1
+   MOV rE, #0x67
+   ADD rE, rE, #0x600
+   ADD r1, r1, rE
+   BL year1
+   MOV rE, #0x67
+   ADD rE, rE, #0x600
+   ADD r1, r1, rE
+
+   BL main
+
+   
+repeat2:
+   BL repeat2

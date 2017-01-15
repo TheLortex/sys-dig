@@ -1,7 +1,7 @@
 const ram_value_size = 32;
 const reg_size = 32;
 const nb_bit_addr_reg = 4;
-const ram_addr_size = 6;
+const ram_addr_size = 16;
 
 #include "power.mj"
 #include "ram_rom_access.mj"
@@ -40,7 +40,7 @@ end where
 
 (* main function *)
 
-main() = (sec0:[7], sec1:[7], min0:[7], min1:[7], hour0:[7], hour1:[7], day0:[7], day1:[7], month0:[7], month1:[7], isbissextile, lastpc:[32], r14:[32], alu_input_1:[32], alu_input_2:[32], alu_output:[32]) where
+main() = (sec0:[7], sec1:[7], min0:[7], min1:[7], hour0:[7], hour1:[7] ,day0:[7], day1:[7], month0:[7], month1:[7], isbissextile, year0:[7], year1:[7], year2:[7], year3:[7], r0:[32], pc:[32], flagZ) where
 
     (* We set the flags from precedent cycle *)
     flagN = reg(newFlagN);
@@ -107,7 +107,7 @@ main() = (sec0:[7], sec1:[7], min0:[7], min1:[7], hour0:[7], hour1:[7], day0:[7]
 
 
     (* We modify the flags if necessary for next cycle *)
-    f = modify_flags & not(is_ram_instruction);
+    f = ( (not modify_reg) or modify_flags) & not(is_ram_instruction);
     newFlagN = mux(f,flagN,flags[0]);
     newFlagZ = mux(f,flagZ,flags[1]);
     newFlagC = mux(f,flagC,flags[2]);
@@ -115,24 +115,26 @@ main() = (sec0:[7], sec1:[7], min0:[7], min1:[7], hour0:[7], hour1:[7], day0:[7]
 
     r0 = reg_read(0.0.0.0);
     r1 = reg_read(0.0.0.1);
-    r2 = reg_read(0.0.1.0);
-    r14 = reg_read(1.1.1.0);
 
     c1 = 0;
     c2 = c1.c1;
     c3 = c2.0;
 
-    sec0 = seg7(c1.r0[29..31]);
-    sec1 = seg7(r0[25..28]);
-    min0 = seg7(c1.r0[22..24]);
-    min1 = seg7(r0[18..21]);
-    hour0 = seg7(c2.r0[16..17]);
-    hour1 = seg7(r0[12..15]);
-    day0 = seg7(c2.r0[10..11]);
-    day1 = seg7(r0[6..9]);
-    month0 = seg7(c3.r0[5]);
-    month1 = seg7(r0[1..4]);
+    sec0 = seg7(c1.r0[25..27]);
+    sec1 = seg7(r0[28..31]);
+    min0 = seg7(c1.r0[18..20]);
+    min1 = seg7(r0[21..24]);
+    hour0 = seg7(c2.r0[12..13]);
+    hour1 = seg7(r0[14..17]);
+    day0 = seg7(c2.r0[6..7]);
+    day1 = seg7(r0[8..11]);
+    month0 = seg7(c3.r0[1]);
+    month1 = seg7(r0[2..5]);
     isbissextile = r0[0];
 
-    lastpc = reg_read(1.1.1.1);
+    year0 = seg7(r1[16..19]);
+    year1 = seg7(r1[20..23]);
+    year2 = seg7(r1[24..27]);
+    year3 = seg7(r1[28..31]);
+
 end where
