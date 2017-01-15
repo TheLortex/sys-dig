@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 MOV r2, #0x300
 ADD r2, r2, #0x27
 ADD r3, r2, #0x1000
@@ -557,8 +556,3 @@ year0:
    
 repeat2:
    BL repeat2
-=======
-main:
-   ADD r0,r0,#33554432
-   B main
->>>>>>> 1e7627f6b4b0948125ce065f9a3994aa220450f8
