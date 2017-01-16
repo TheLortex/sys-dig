@@ -260,8 +260,6 @@ void Program::write_read_roms(std::ofstream &cppfile)
 
     	cppfile << "romfile.close();}\n";
     }
-
-
 }
 
 void Program::write_read_variables(std::ofstream &cppfile)
