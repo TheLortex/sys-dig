@@ -418,18 +418,16 @@ monthafterfebruary:
 
 
 oneyear:
-    TST r1, #0x3
-    MOVNQ r1, #0x0
+    TST r1, #0xC0000000
     MOVNQ rF, rE
     TST r1, #0xFF
-    MOVNQ r1, #0x80000000
-    MOVNQ r1, #0x0
+    MOVNQ r0, #0x80000000
+    MOVNQ r0, #0x0
     MOVNQ rF, rE
     TST r1, #0x300
-    MOVNQ r1, #0x0
     MOVNQ rF, rE
-    MOV r1, #0x80000000
-    MOV r1, #0x0
+    MOV r0, #0x80000000
+    MOV r0, #0x0
     MOV rF, rE
 
     TST r1, #0x3
@@ -445,24 +443,25 @@ oneyear:
 year3:
    MOV r9, rE
    BL oneyear
-   ADD r1, r1, #0x1
+   ADD r1, r1, #0x40000001
    BL oneyear
-   ADD r1, r1, #0x1
+   ADD r1, r1, #0x40000001
    BL oneyear
-   ADD r1, r1, #0x1
+   ADD r1, r1, #0x40000001
    BL oneyear
-   ADD r1, r1, #0x1
+   ADD r1, r1, #0x40000001
    BL oneyear
-   ADD r1, r1, #0x1
+   ADD r1, r1, #0x40000001
    BL oneyear
-   ADD r1, r1, #0x1
+   ADD r1, r1, #0x40000001
    BL oneyear
-   ADD r1, r1, #0x1
+   ADD r1, r1, #0x40000001
    BL oneyear
-   ADD r1, r1, #0x1
+   ADD r1, r1, #0x40000001
    BL oneyear
-   ADD r1, r1, #0x1
+   ADD r1, r1, #0x40000001
    BL oneyear
+   ADD r1, r1, #0x40000000
    MOV rF, r9
 
 year2:
