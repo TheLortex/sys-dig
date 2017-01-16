@@ -32,7 +32,8 @@ Le projet est organisé en plusieurs dosseiers :
   \item clock contient des scripts pour éxecuter facilement l'horloge 
 \end{itemize}
 
-\section{Modèle de processeur}
+\section{Modèle de processeur et architecture globale}
+>>>>>>> 03997815418f1e16862b23871fb42bc87561f8c5
 
 Nous avons choisi de beaucoup nous inspirer des processeurs ARM, qui ont
 l'avantage d'avoir un jeu d'instruction à la fois simple et complet, tout en
@@ -40,26 +41,26 @@ possédant une certaine efficacité grace aux conditionnement des instructions,
 permettant de réduire le nombre de jump à effectuer dans les instructions
 assembleurs.
 
-\section{Mémoires et registres}
+\subsection{Mémoires et registres}
 
 Le processeur que nous utilisons possède 16 registres, dont un program counter.
 Il possède une unique ROM addressée sur 16 bits, dont les éléments sont des
-entiers binaires de 32 bits. Notre procésseur n'utilises pas de RAM, bien que
+entiers binaires de 32 bits. Notre processeur n'utilises pas de RAM, bien que
 les registres soient modélisés sous forme de RAM adressée sous 4 bits.
 La ROM contient le programme sous forme d'opcodes, générés par du code
 assembleur ARM.
 
 Le registre rF est le program counter, et pointe sur l'instruction courante.
+Le registre rE est utilisé par les instructions "branch and link" qui sauvegarde
+la valeur de rF avant de faire un saut.
 
-\section{Opcodes}
+\subsection{Opcodes}
 
 Une instruction assembleur est écrite sous 32 bits, et est structurée ainsi :
 
 \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|}
   \hline
   0-3  & 4 & 5 & 6 & 7 & 8-10 & 11 & 12-15 & 16-19 & 20-23 & 24-27 & 28-31 \\
-  \hline
-  COND & 0 & 1 & \multicolumn{9}{c|}{Opération sur la RAM} \\
   \hline
   COND & 0 & 0 & I & \multicolumn{2}{c|}{OPCODE} & Set flag & Registre rd & Registre op1 & \multicolumn{3}{c|}{Opérande op2}  \\
   \hline
@@ -73,9 +74,9 @@ Une instruction assembleur est écrite sous 32 bits, et est structurée ainsi :
   \hline
 \end{tabular}
 
-\subsection{Flags}
+\subsubsection{Flags}
 
-A chaque opération, si le booléen set flag est activé, alors les flags sont
+A chaque opération, si le booléen set flag est activé ou que l'opération est une opération sans registre de destination, alors les flags sont
 recalculés :
   \begin{itemize}
   \item N : La dernière instruction renvoie un entier négatif
@@ -86,7 +87,7 @@ recalculés :
     signée
   \end{itemize}
 
-  \subsection{Conditionnelles}
+  \subsubsection{Conditionnelles}
 
   Voici les codes des conditions d'executions des opérations:\\
 
@@ -148,7 +149,14 @@ Voici les opérations assembleur arithmétiques et booléennes :\\
 
 Où c représente le carry
 
-\subsection{Instruction spécifique au procésseur}
+\subsection{Instruction de sauts}
+Deux instructions sont disponibles: branch (B) et branch and link (BL).
+Branch s'occupe simplement de positionner le program counter (rF) à un autre
+endroit du code. Branch and link sauvegarde en plus la valeur du program counter
+incrémenté (rF+1) dans rE. Cela permet de faire des retours très facilement en
+faisant un MOV rF, rE.
+
+\subsection{Instruction spécifique au processeur}
 
 L'instruction WAI a été ajoutée. L'opération prends deux paramètres, un port et
 une valeur sur 12 bits. Le program counter reste bloqué sur l'instruction tant
@@ -175,7 +183,16 @@ RRX sur l'opérande 2. Il permet aussi de faire un move avec un entier supérieu
   \hline
 \end{tabular}
 
-\section{Utilisation du procésseur pour créer une montre}
+\subsection{ALU}
+L'ALU prend en entrée deux valeurs sur 32 bits op1 et op2, le carry sortant de la dernière instruction et l'opcode de l'instruction actuelle.
+On a réorganisé les opcodes afin d'optimiser les calculs de l'ALU, pour n'avoir qu'un seul adder.
+
+Ainsi les 8 premiers opcode (0XXX) correspondent à des instructions utilisant l'adder.
+Pour transformer l'adder en soustracteur il suffit par exemple de calculer l'opposé de op1, ce qui se fait en calcul incr(not(op1)) où incr désigne l'incrémenteur.
+Ainsi on arrive avec un jeu de mux à rediriger les bonnes valeurs dans l'ALU.
+Les flags sortant correspondent soit au flag de l'adder, soit au flag calculé en sortie des opérations logiques. Dans le cas des opérations logiques, les flags C et V
+sont toujours à 0, et seuls les flags Z et N sont calculés.
+\section{Utilisation du processeur pour créer une montre}
 
 Deux programmes assembleurs ont été écrits pour la montre : un programme
 simulant une montre en temps réel, et un autre le simulant en temps accéléré
