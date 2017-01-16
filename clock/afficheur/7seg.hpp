@@ -192,9 +192,9 @@ void Segments::run() {
 
   while(continuer) {
     stop_mutex.unlock();
-    SDL_SetRenderDrawColor( renderer, 0, 0, 0, 255 );
+    SDL_SetRenderDrawColor( renderer, 41, 22, 61, 255 );
     SDL_RenderClear(renderer);
-    SDL_SetRenderDrawColor( renderer, 255, 255, 255, 255 );
+    SDL_SetRenderDrawColor( renderer, 183, 186, 18, 255 );
     vars_mutex.lock();
     for(unsigned int i=0;i<affichages.size();i++) {
       affichages[i]->draw();
@@ -205,7 +205,6 @@ void Segments::run() {
 
     while(SDL_PollEvent(&evenements)) {
       if ( evenements.window.event == SDL_WINDOWEVENT_CLOSE ) {
-          std::cout << "Je vais m'arrêter." << std::endl;
           continuer = false;
       }
     }
