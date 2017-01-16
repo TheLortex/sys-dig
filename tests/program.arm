@@ -419,17 +419,17 @@ monthafterfebruary:
 
 oneyear:
     TST r1, #0x3
-    MOVNQ r0, #0x0
+    MOVNQ r1, #0x0
     MOVNQ rF, rE
     TST r1, #0xFF
-    MOVNQ r0, #0x80000000
-    MOVNQ r0, #0x0
+    MOVNQ r1, #0x80000000
+    MOVNQ r1, #0x0
     MOVNQ rF, rE
     TST r1, #0x300
-    MOVNQ r0, #0x0
+    MOVNQ r1, #0x0
     MOVNQ rF, rE
-    MOV r0, #0x80000000
-    MOV r0, #0x0
+    MOV r1, #0x80000000
+    MOV r1, #0x0
     MOV rF, rE
 
     TST r1, #0x3
