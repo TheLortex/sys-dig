@@ -1,6 +1,7 @@
 open Parser
 open Format
 open Arm
+open Lexing
 
 let ifile = ref ""
 let ofile = ref ""
@@ -29,6 +30,9 @@ let code_to_int label_map = function
     (icond lsl 28) + (5 lsl 25) + (link lsl 24) + offset
   | _ -> raise Nop
 
+let print_position lexbuf =
+  let pos = lexbuf.lex_curr_p in
+  (print_string ("File "^(!ifile)^", line "^(string_of_int pos.pos_lnum)^ "\n"))
 
 let output_fat_binary_int ofile i =
   let rec aux n p =
@@ -80,6 +84,8 @@ let output_fat_binary_int ofile i =
     close_out f;
 
   with
-  	| Lexer.Lexing_error c -> print_string ("Erreur de lexing. "^c^"\n")
-    | Parsing.Parse_error ->  print_string "Erreur de parsing.\n"
+  | Lexer.Lexing_error c -> print_position buf
+
+  | _ ->  print_position buf
+
   	| IntegerConstantFailed i-> print_string ("Erreur d'intégration d'entier."^(string_of_int i)^"\n")
