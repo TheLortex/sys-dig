@@ -8,14 +8,22 @@ exception IntegerConstantFailed of int
 type code = Instr of int | Branch of (instr*cond*string*int) | DeclLabel of (string*int)
 
 let encode_cst i =
-	let n = ref(0) and c = ref(i) in
-	while (!c >= 256) do
-		if !c mod 4 == 0 then
-			(c := !c / 4; incr n)
-		else
-			raise (IntegerConstantFailed i)
-	done;
-	(if (!n = 0) then 0 else (16-(!n))) lsl 8 + !c
+  let n = ref(0) and c = ref(i) in
+  if (!c mod (1 lsl 24) < 16)
+  then
+    begin
+      (4 lsl 8) + (!c lsl 4) + (!c lsr 28)
+    end
+  else
+    begin
+    	while (!c >= 256) do
+    		if !c mod 4 = 0 then
+    			(c := !c / 4; incr n)
+    		else
+    			raise (IntegerConstantFailed i)
+    	done;
+     (if (!n = 0) then 0 else (16-(!n))) lsl 8 + !c
+    end
 
 
 let encode_cond cond =
