@@ -31,11 +31,7 @@ public:
   void stop();
   void run();
   bool stopped() {
-    bool res;
-    stop_mutex.lock();
-    res = continuer;
-    stop_mutex.unlock();
-    return !res;
+    return !continuer;
   }
 
 private:
@@ -194,7 +190,6 @@ void Segments::run() {
 
   SDL_Event evenements;
 
-  stop_mutex.lock();
   while(continuer) {
     stop_mutex.unlock();
     SDL_SetRenderDrawColor( renderer, 0, 0, 0, 255 );
@@ -208,7 +203,6 @@ void Segments::run() {
 
     SDL_RenderPresent(renderer);
 
-    stop_mutex.lock();
     while(SDL_PollEvent(&evenements)) {
       if ( evenements.window.event == SDL_WINDOWEVENT_CLOSE ) {
           std::cout << "Je vais m'arrêter." << std::endl;
@@ -219,15 +213,12 @@ void Segments::run() {
 
     SDL_Delay(1000/10.);
   }
-  stop_mutex.unlock();
 }
 
 
 
 void Segments::stop() {
-  stop_mutex.lock();
   continuer=false;
-  stop_mutex.unlock();
 }
 
 void Segments::update(std::string str, uint8_t val) {

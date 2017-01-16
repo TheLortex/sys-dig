@@ -1,10 +1,1 @@
-B aurevoir
-bonjour:
-BLNQ aurevoir
-ADD r1, r2, r2
-EORS r1, r1, r1
-aurevoir:
-ADD rF,r2,r1,LSL #13
-ADDEQ r1,r2,r3
-ADDNQS r1,r2,r3
-BEQ bonjour
+WAI #0, #1

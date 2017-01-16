@@ -13,6 +13,7 @@ let unary x = (fun (y,z) -> UNARY (x,y,z))
 let ram x = (fun (y,z) -> RAM (x,y,z))
 let rot x = (fun (y,z) -> ROT x)
 let branch x = (fun (y,z) -> BRANCH (x,y,z))
+let special x = (fun (y,z) -> SPECIAL (x,y,z))
 
   let kwd_tbl = [
     "ADD",kwd ADD;
@@ -36,7 +37,8 @@ let branch x = (fun (y,z) -> BRANCH (x,y,z))
     "LSL",rot LSL;
     "LSR",rot LSR;
     "ASR",rot ASR;
-    "ROR",rot ROR]
+    "ROR",rot ROR;
+    "WAI",special WAIT;]
 
   let cond_tbl = [
     "EQ",EQ;
@@ -83,7 +85,7 @@ let decode ident =
                if ident.[0] = 'B' then (1,branch B) else (raise Invalid)
              end
            end
-    end       
+    end
      ) in
   res (decode_end (String.sub ident size (strlen - size)))
 

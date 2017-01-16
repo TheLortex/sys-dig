@@ -137,6 +137,7 @@ void Program::compile(std::string const &name)
     cppfile << "#include <fstream>\n";
     cppfile << "#include <bitset>\n";
     cppfile << "#include <thread>\n";
+    cppfile << "#include <ctime>\n";
     cppfile << "#include <array>\n\n";
     cppfile << "#include \"afficheur/7seg.hpp\"\n";
 
@@ -251,9 +252,13 @@ void Program::write_read_variables(std::ofstream &cppfile)
 
     for(Var *v: _input)
     {
-	cppfile << "std::cout << \"" << v->get_name() << " (taille de la nappe : " << v->get_size() << ") : \";\n";
-	cppfile << "std::cin >> tempvar;\n";
-	cppfile << v->get_cpp_name() << " = " << "std::stoll(tempvar,nullptr,2);\n";
+      if(v->get_name() == "clock") {
+        cppfile << v->get_cpp_name() << " = " << "time(NULL) % 2; ";
+      } else {
+        cppfile << "std::cout << \"" << v->get_name() << " (taille de la nappe : " << v->get_size() << ") : \";\n";
+      	cppfile << "std::cin >> tempvar;\n";
+      	cppfile << v->get_cpp_name() << " = " << "std::stoll(tempvar,nullptr,2);\n";
+      }
     }
 
     cppfile << "\n";
