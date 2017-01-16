@@ -13,9 +13,6 @@ B year0
 
 
 seconds:
-ADD r0, r0, #0x59
-MOV rF, rE
-
    ADD r0, r0, #0x1
    ADD r0, r0, #0x1
    ADD r0, r0, #0x1
@@ -343,6 +340,7 @@ days30:
    BL hours
    ADD r0, r0, r6
    BL hours
+   BL repeat
    ADD rE, r5, #0x1000000
    MOV rF, rB
 
@@ -366,6 +364,7 @@ monthbissext:
     BL days27base
     BL days31
     ADD r0, r0, rE
+    BL days27base
     BL days29
     ADD r0, r0, rE
     B monthafterfebruary
@@ -419,23 +418,11 @@ monthafterfebruary:
 
 oneyear:
     TST r1, #0xC0000000
-    MOVNQ rF, rE
-    TST r1, #0xFF
-    MOVNQ r0, #0x80000000
-    MOVNQ r0, #0x0
-    MOVNQ rF, rE
-    TST r1, #0x300
-    MOVNQ rF, rE
-    MOV r0, #0x80000000
-    MOV r0, #0x0
-    MOV rF, rE
-
-    TST r1, #0x3
     BNQ monthnobissext
     TST r1, #0xFF
     BNQ monthbissext
     TST r1, #0x300
-    BNQ monthnobissext
+    BNQ monthnobissext  
     B monthbissext
 
 
@@ -551,7 +538,5 @@ year0:
    ADD r1, r1, rE
 
    BL main
-
-   
-repeat2:
-   BL repeat2
+   repeat:
+   BL repeat

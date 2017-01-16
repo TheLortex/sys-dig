@@ -294,7 +294,6 @@ void Program::write_iterations(std::ofstream &cppfile)
 
     //On affiche le résultat
     write_display_output(cppfile);
-    cppfile << "std::cout << std::endl << std::endl;\n";
     cppfile << "}\n\n";
 }
 
@@ -310,6 +309,10 @@ void Program::write_display_output(std::ofstream &cppfile)
             cppfile << " % " << (uint64_t)((uint64_t)(1) << (uint64_t)(v->get_size()));
         }
         cppfile << ") << std::endl;\n";
+    }
+    if(_output.size() != 0)
+    {
+        cppfile << "std::cout << std::endl << std::endl;\n\n";
     }
 
     for(Var* v : _display_vars) {
