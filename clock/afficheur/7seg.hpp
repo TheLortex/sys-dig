@@ -4,6 +4,7 @@
 #include <string>
 #include <map>
 
+
 class SeptSeg {
   public:
     SeptSeg(int,int,int,int,SDL_Renderer*);
@@ -20,35 +21,65 @@ class SeptSeg {
     std::vector<SDL_Rect> positions;
 };
 
-
-class Segments {
+class Character {
 public:
-  Segments(const Segments&);
-  Segments(std::string config);
-  ~Segments();
-
-  void update(std::string,uint8_t val);
-  void stop();
-  void run();
-  bool stopped() {
-    return !continuer;
-  }
-  bool quick() {
-    return _quick;
-  }
-
+  Character(int,int,int,int,char,SDL_Renderer*);
+  void draw();
 private:
-  SDL_Window* window;
-  SDL_Renderer* renderer;
-  std::vector<SeptSeg*> affichages;
-  std::map<std::string,int> mots;
-  std::string m_config;
+  SDL_Renderer* _win;
+  int _x;
+  int _y;
+  int _l;
+  int _w;
+  int _c;
 
-  bool continuer;
-  bool _quick;
-  std::mutex vars_mutex;
-  std::mutex stop_mutex;
+  SDL_Texture* texture;
 };
+
+Character::Character(int x, int y, int length, int width, char c, SDL_Renderer* win) {
+  _win = win;
+  _x = x;
+  _y = y;
+  _c = c;
+  _l = length;
+  _w = width;
+  texture = SDL_CreateTexture(win, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 256, 256);
+  SDL_SetRenderTarget(win, texture);
+  SDL_SetRenderDrawColor(win, 183, 186, 18, 255 );
+
+  SDL_RenderClear(win);
+  SDL_SetRenderTarget(win, NULL);
+}
+
+void Character::draw() {
+  int of = _w/2;
+  SDL_Rect p1;
+  SDL_Rect source = {0,0,4*_l,_w};
+
+  switch (_c) {
+    case '/':
+
+      p1.x = _x+_w;
+      p1.y = _y;
+      p1.h = 4*_l;
+      p1.w = _w;
+
+      SDL_RenderCopyEx( _win, texture, &source, &p1, 12, NULL,SDL_FLIP_NONE );
+      break;
+    case ':':
+      p1.x = _x + _l/2 - of;
+      p1.y = _y + _l - of;
+      p1.h = _w;
+      p1.w = _w;
+      SDL_RenderFillRect(_win, &p1);
+      p1.x = _x + _l/2 - of;
+      p1.y = _y + 3*_l - of;
+      p1.h = _w;
+      p1.w = _w;
+      SDL_RenderFillRect(_win, &p1);
+      break;
+  }
+}
 
 SeptSeg::SeptSeg(int x_, int y_, int length, int width, SDL_Renderer* win_) {
   win = win_;
@@ -114,6 +145,35 @@ void SeptSeg::draw() {
 
 }
 
+class Segments {
+public:
+  Segments(const Segments&);
+  Segments(std::string config);
+  ~Segments();
+
+  void update(std::string,uint8_t val);
+  void stop();
+  void run();
+  bool stopped() {
+    return !continuer;
+  }
+  bool quick() {
+    return _quick;
+  }
+
+private:
+  SDL_Window* window;
+  SDL_Renderer* renderer;
+  std::vector<SeptSeg*> affichages;
+  std::vector<Character*> chars;
+  std::map<std::string,int> mots;
+  std::string m_config;
+
+  bool continuer;
+  bool _quick;
+  std::mutex vars_mutex;
+  std::mutex stop_mutex;
+};
 
 Segments::Segments(std::string config) {
   m_config = config;
@@ -125,6 +185,7 @@ Segments::Segments(const Segments& in) {
   window = in.window;
   renderer = in.renderer;
   affichages = in.affichages;
+  chars = in.chars;
   mots = in.mots;
   continuer = in.continuer;
   _quick = in._quick;
@@ -133,6 +194,9 @@ Segments::Segments(const Segments& in) {
 Segments::~Segments() {
   for(int i=0;i<affichages.size();i++)
     delete affichages[i];
+
+  for(int i=0;i<chars.size();i++)
+    delete chars[i];
 
 
   SDL_DestroyWindow(window);
@@ -149,8 +213,8 @@ void Segments::run() {
   int position_x=0;
   int position_y=0;
 
-  int taille=80;
-  int largeur=8;
+  int taille=30;
+  int largeur=5;
 
   if(SDL_Init(SDL_INIT_VIDEO) < 0)
   {
@@ -171,11 +235,11 @@ void Segments::run() {
   for(unsigned int i=0;i<m_config.size();i++) {
     if(m_config[i] == '|' && inmot) {
       inmot = false;
-      SeptSeg* sg = new SeptSeg(50+position_x*(taille+50),50+position_y*(2*taille+50),taille,largeur,renderer);
+      SeptSeg* sg = new SeptSeg(50+position_x*(taille+10),50+position_y*(4*taille+50),2*taille,largeur,renderer);
       affichages.push_back(sg);
       mots[c] = k;
       k++;
-      position_x++;
+      position_x += 2;
     } else if(m_config[i] == '|') {
       inmot = true;
       c = "";
@@ -185,6 +249,11 @@ void Segments::run() {
     } else {
       if(inmot) {
         c += m_config[i];
+      } else {
+        if(m_config[i] == '/' || m_config[i] == ':') {
+          chars.push_back(new Character(50+position_x*(taille+10),50+position_y*(4*taille+50),taille,largeur,m_config[i],renderer));
+        }
+        position_x++;
       }
     }
 
@@ -206,7 +275,9 @@ void Segments::run() {
       affichages[i]->draw();
     }
     vars_mutex.unlock();
-
+    for(unsigned int i=0;i<chars.size();i++) {
+      chars[i]->draw();
+    }
     SDL_RenderPresent(renderer);
 
     while(SDL_PollEvent(&evenements)) {
