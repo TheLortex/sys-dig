@@ -104,7 +104,7 @@ main(clock) = () where
     useless = reg_write(modify_reg and is_logical_instruction and shouldRun,rd_addr, alu_output);
     useless2 = reg_write(is_branch_instruction and shouldRun, pc_addr, alu_output);
     useless3 = reg_write(is_branch_instruction and is_branch_and_link and shouldRun, 1.1.1.0, pcincr);
-    useless4 = reg_write((not is_branch_instruction) and (not (modify_reg and rd_is_pc and shouldRun)) and (not(is_wait_instruction) or shouldRun), pc_addr, pcincr);
+    useless4 = reg_write((not (is_branch_instruction and shouldRun)) and (not (modify_reg and rd_is_pc and shouldRun)) and (not(is_wait_instruction) or shouldRun), pc_addr, pcincr);
 
 
 
