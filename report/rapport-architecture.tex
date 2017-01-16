@@ -27,28 +27,34 @@ assembleurs.
 
 \section{Mémoires et registres}
 
-Le procésseur possède une unique RAM et une unique ROM. Au démarrage de la
-simulation, la RAM est entièrement vide. La ROM contient le programme sous forme
-d'opcodes, générés par du code assembleur.
+Le processeur que nous utilisons possède 16 registres, dont un program counter.
+Il possède une unique ROM addressée sur 16 bits, dont les éléments sont des
+entiers binaires de 32 bits. Notre procésseur n'utilises pas de RAM, bien que
+les registres soient modélisés sous forme de RAM adressée sous 4 bits.
+La ROM contient le programme sous forme d'opcodes, générés par du code
+assembleur ARM.
 
-Le processeur contient 16 registres addressés sur 4 bits. Le registre \%r00
-pointe sur l'instruction actuelle à lire dans la ROM.
+Le registre rF est le program counter, et pointe sur l'instruction courante.
 
 \section{Opcodes}
 
 Une instruction assembleur est écrite sous 32 bits, et est structurée ainsi :
 
-\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|}
   \hline
-  0-3  & 4 & 5 & 6 & 7-10 & 11 & 12-15 & 16-19 & 20-23 & 24-27 & 28-31 \\
+  0-3  & 4 & 5 & 6 & 7 & 8-10 & 11 & 12-15 & 16-19 & 20-23 & 24-27 & 28-31 \\
   \hline
-  COND &   & 1 & \multicolumn{8}{c|}{Opération sur la RAM} \\
+  COND & 0 & 1 & \multicolumn{9}{c|}{Opération sur la RAM} \\
   \hline
-  COND &   & 0 & I & OPCODE & Set flag & Registre rd & Registre op1 & \multicolumn{3}{c|}{Opérande op2}  \\
+  COND & 0 & 0 & I & \multicolumn{2}{c|}{OPCODE} & Set flag & Registre rd & Registre op1 & \multicolumn{3}{c|}{Opérande op2}  \\
   \hline
-  COND &   & 0 & 1 & OPCODE & Set flag & Registre rd &Registre op1 & Shift & \multicolumn{2}{c|}{Constante} \\
+  COND & 0 & 0 & 1 & \multicolumn{2}{c|}{OPCODE} & Set flag & Registre rd &Registre op1 & Shift & \multicolumn{2}{c|}{Constante} \\
   \hline
-  COND &   & 0 & 0 & OPCODE & Set flag & Registre rd & Registre op1 & \multicolumn{2}{c|}{Shift} & r2  \\
+  COND & 0 & 0 & 0 & \multicolumn{2}{c|}{OPCODE} & Set flag & Registre rd & Registre op1 & \multicolumn{2}{c|}{Shift} & r2  \\
+  \hline
+  COND & 1 & 0 & 1 & linking & \multicolumn{ 7}{c|}{Offset} \\
+  \hline
+  COND & 1 & 1 & 1 & 0 & \multicolumn{4}{c|}{Port} & \multicolumn{3}{c|}{Valeur} \\
   \hline
 \end{tabular}
 
@@ -125,18 +131,67 @@ Voici les opérations assembleur arithmétiques et booléennes :\\
 
 Où c représente le carry
 
-\subsection{Accès à la mémoire}
+\subsection{Instruction spécifique au procésseur}
 
-Deux opérations sont possibles lors de l'accès à la mémoire :\\
+L'instruction WAI a été ajoutée. L'opération prends deux paramètres, un port et
+une valeur sur 12 bits. Le program counter reste bloqué sur l'instruction tant
+que le port n'envoie pas la valeur indiquée.
+
+Cette instruction à été ajouté pour permettre une synchronisation avec un
+élément externe au processeur, comme une horloge.
+
+\subsection{Barrel shifter}
+
+Le barrel shifter permet d'effectuer les opérations LSL, ASL, LSR, ASR, ROR et
+RRX sur l'opérande 2. Il permet aussi de faire un move avec un entier supérieur
+à 8 bits.
 
 \begin{tabular}{|c|c|c|}
   \hline
-  Opcode & Nom assembleur & effet\\
+  Opcode & Nom assembleur & effet \\
   \hline
-  0 & LDR & R[Rd] = mémoire à l'adresse op2\\
-  1 & STR & mémoire à l'adresse op2 = R[Rd]\\
+  00 & LSL/ASL & effectue un shift gauche\\
+  01 & ROR & effectue une rotation droite\\
+  01 & RRX & effectue une rotation droite avec le bit de carry\\
+  10 & LSR & effectue un shift droit logique\\
+  11 & ASR & effectue un shift gauche arithmétique\\
   \hline
-
 \end{tabular}
+
+\section{Utilisation du procésseur pour créer une montre}
+
+Deux programmes assembleurs ont été écrits pour la montre : un programme
+simulant une montre en temps réel, et un autre le simulant en temps accéléré
+(aussi vite que le processeur le permet).
+
+Les deux programmes ne diffèrent que de peu. La seule différence est que l'une
+attends un signal donné par une horloge pour changer de seconde.
+
+\subsection{Programme assembleur}
+
+
+Le programme est structuré en plusieurs blocs assembleurs, s'appellant pas
+système de branching. Il y a un bloc pour les unités de minutes, les dizaines de
+minutes, les unités d'heures... La seule exception étant pour les secondes, qui
+sont regroupés en un bloc.
+
+La date (hormi l'année) et l'heure est stocké dans le registre r0. L'année est
+elle stockée dans le registre r1. Il faut noter qu'on ne stocke pas les valeurs
+en elles même, mais les valeurs des digits de chaque chiffre en décimal. Cela
+permet de relier directement les 2 registres à des afficheurs 7 segments, pour
+les afficher en temps réel au moment de leur modification.
+
+Pour éviter d'avoir des heures impossibles affichées comme 3h60, notre
+représentation permet de modifier toutes les valeurs (sauf les années) en une
+unique instruction. Cependant, pendant quelques cycles, il sera affiché une
+année antérieure lors du passage au nouvel an.
+
+
+
+\subsection{Affichage en 7 segment}
+
+Les registres r0 et r1 étant relié dans le circuit à des convertisseurs 7
+segments, nous avons décidé de les afficher en utilisant la SDL2, qui tourne
+dans un thread en parallèle au simulateur.
 
 \end{document}
