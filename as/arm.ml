@@ -12,7 +12,7 @@ let encode_cst i =
   if (!c mod (1 lsl 24) < 16)
   then
     begin
-      (4 lsl 8) + (!c lsl 4) + (!c lsr 28)
+      (2 lsl 8) + (!c lsl 4) + (!c lsr 28)
     end
   else
     begin
