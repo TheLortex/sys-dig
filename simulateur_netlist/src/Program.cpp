@@ -57,25 +57,25 @@ void Program::schedule()
 
     for(Var *v: _vars)
     {
-	if(!v->has_value())
-	{
-	    var_to_calculate.push_back(v);
-	}
+        if(!v->has_value())
+        {
+            var_to_calculate.push_back(v);
+        }
     }
     //On ajoute des id aux variables pour les associés aux noeuds d'un graphe qu'on va trier topologiquement
     for(unsigned int i=0; i<var_to_calculate.size(); i++)
     {
-	var_to_calculate[i]->set_id(i);
+        var_to_calculate[i]->set_id(i);
     }
 
     //On ajoute les arêtes représentant les dépendances
     Graph graph(var_to_calculate.size());
     for(Expression* e: _expressions)
     {
-	for(Var* v: e->get_dependencies())
-	{
-	    graph.add_edge(e->get_result()->get_id(), v->get_id());
-	}
+        for(Var* v: e->get_dependencies())
+        {
+            graph.add_edge(e->get_result()->get_id(), v->get_id());
+        }
     }
 
     //On trie les expressions grace au tri topologique
@@ -101,26 +101,26 @@ void Program::schedule()
 }
 
 void Program::config(std::string config_string) {
-  _display_string = config_string;
-  std::string k = "";
-  bool invar = false;
-  std::cout << _display_vars.size() << std::endl;
-  for(char c : config_string) {
-    if(invar && c == '|') {
-      invar = false;
-      for(Var* v : _vars) {
-        if(v->get_name() == k) {
-          _display_vars.push_back(v);
+    _display_string = config_string;
+    std::string k = "";
+    bool invar = false;
+    std::cout << _display_vars.size() << std::endl;
+    for(char c : config_string) {
+        if(invar && c == '|') {
+            invar = false;
+            for(Var* v : _vars) {
+                if(v->get_name() == k) {
+                    _display_vars.push_back(v);
+                }
+            }
+        } else if(c == '|') {
+            invar = true;
+            k = "";
+        } else if(invar){
+            k += c;
         }
-      }
-    } else if(c == '|') {
-      invar = true;
-      k = "";
-    } else if(invar){
-      k += c;
     }
-  }
-  std::cout << _display_vars.size() << std::endl;
+    std::cout << _display_vars.size() << std::endl;
 }
 
 void Program::compile(std::string const &name)
@@ -269,27 +269,27 @@ void Program::write_iterations(std::ofstream &cppfile)
 
     for(Expression *e: _expressions)
     {
-	try
-	{
-	    cppfile << e->get_instructions_beginning() << "\n";
-	}
-	catch(std::string e){}
+        try
+        {
+            cppfile << e->get_instructions_beginning() << "\n";
+        }
+        catch(std::string e){}
     }
     for(Expression *e: _expressions)
     {
-	try
-	{
-	    cppfile << e->get_instructions_mid() << "\n";
-	}
-	catch(std::string e){}
+        try
+        {
+            cppfile << e->get_instructions_mid() << "\n";
+        }
+        catch(std::string e){}
     }
     for(Expression *e: _expressions)
     {
-	try
-	{
-	    cppfile << e->get_instructions_end() << "\n";
-	}
-	catch(std::string e){}
+        try
+        {
+            cppfile << e->get_instructions_end() << "\n";
+        }
+        catch(std::string e){}
     }
 
     //On affiche le résultat
