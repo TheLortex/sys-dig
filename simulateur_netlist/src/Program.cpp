@@ -312,9 +312,9 @@ void Program::write_display_output(std::ofstream &cppfile)
         cppfile << ") << std::endl;\n";
     }
 
+    cppfile << "if(x.stopped()) {t.join();return 0;}\n";
     for(Var* v : _display_vars) {
       cppfile << "x.update(\"" << v->get_name() << "\"," << v->get_cpp_name() << ");\n";
     }
-
     cppfile << "\n";
 }
