@@ -340,7 +340,6 @@ days30:
    BL hours
    ADD r0, r0, r6
    BL hours
-   BL repeat
    ADD rE, r5, #0x1000000
    MOV rF, rB
 
@@ -412,6 +411,7 @@ monthafterfebruary:
     ADD r0, r0, rE
     BL days27base
     BL days31
+    MOV r0, #0x4100000
     MOV rF,rA
 
 
@@ -537,6 +537,6 @@ year0:
    ADD rE, rE, #0x600
    ADD r1, r1, rE
 
-   BL main
+   
    repeat:
    BL repeat
