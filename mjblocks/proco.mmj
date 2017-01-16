@@ -40,7 +40,7 @@ end where
 
 (* main function *)
 
-main() = (sec0:[7], sec1:[7], min0:[7], min1:[7], hour0:[7], hour1:[7] ,day0:[7], day1:[7], month0:[7], month1:[7], isbissextile, year0:[7], year1:[7], year2:[7], year3:[7], r0:[32], pc:[32], flagZ) where
+main() = (sec0:[7], sec1:[7], min0:[7], min1:[7], hour0:[7], hour1:[7] ,day0:[7], day1:[7], month0:[7], month1:[7], isbissextile, year0:[7], year1:[7], year2:[7], year3:[7], r0:[32], pc:[32], instruction:[32], flagZ) where
 
     (* We set the flags from precedent cycle *)
     flagN = reg(newFlagN);
@@ -70,12 +70,13 @@ main() = (sec0:[7], sec1:[7], min0:[7], min1:[7], hour0:[7], hour1:[7] ,day0:[7]
     (* If the instruction is an arithmetical operation *)
     is_immediate = instruction[6];
     opcode_logical_instruction = instruction[7..10];
-    modify_flags = instruction[11];
+    modify_flags = instruction[11] and shouldRun;
 
     is_cmn_or_cmp = (not opcode_logical_instruction[0]) and opcode_logical_instruction[1] and (not opcode_logical_instruction[2]);
     is_tst = opcode_logical_instruction[0] and (not opcode_logical_instruction[1]) and (not opcode_logical_instruction[2]) and opcode_logical_instruction[3];
     is_teq = opcode_logical_instruction[0] and opcode_logical_instruction[1] and opcode_logical_instruction[2] and opcode_logical_instruction[3];
-    modify_reg = not (is_cmn_or_cmp or is_tst or is_teq);
+    is_comp = is_cmn_or_cmp or is_tst or is_teq;
+    modify_reg = (not is_comp) and shouldRun;
 
 
     rd_addr = instruction[12..15];
@@ -94,20 +95,20 @@ main() = (sec0:[7], sec1:[7], min0:[7], min1:[7], hour0:[7], hour1:[7] ,day0:[7]
     alu_input_1 = mux_n<reg_size>(is_branch_instruction,op1,pc);
     alu_input_2 = mux_n<reg_size>(is_branch_instruction,op2,branch_offset);
     alu_opcode_logical_instruction = mux_n<4>(is_branch_instruction,opcode_logical_instruction,opcode_branch);
-    (alu_output, flags) = alu <reg_size>(alu_input_1, alu_input_2, alu_opcode_logical_instruction, flagC);
+    (alu_output, flags) = alu <reg_size>(alu_input_1, alu_input_2, alu_opcode_logical_instruction, newC);
 
 
     pcincr = increment<reg_size>(1,pc);
     rd_is_pc = rd_addr[0] and rd_addr[1] and rd_addr[2] and rd_addr[3];
 
-    useless = reg_write(modify_reg and is_logical_instruction,rd_addr, alu_output);
-    useless2 = reg_write(is_branch_instruction, pc_addr, alu_output);
-    useless3 = reg_write(is_branch_instruction and is_branch_and_link, 1.1.1.0, pcincr);
-    useless4 = reg_write((not is_branch_instruction) and (not (modify_reg and rd_is_pc)), pc_addr, pcincr);
+    useless = reg_write(modify_reg and is_logical_instruction and shouldRun,rd_addr, alu_output);
+    useless2 = reg_write(is_branch_instruction and shouldRun, pc_addr, alu_output);
+    useless3 = reg_write(is_branch_instruction and is_branch_and_link and shouldRun, 1.1.1.0, pcincr);
+    useless4 = reg_write((not is_branch_instruction) and (not (modify_reg and rd_is_pc and shouldRun)), pc_addr, pcincr);
 
 
     (* We modify the flags if necessary for next cycle *)
-    f = ( (not modify_reg) or modify_flags) & not(is_ram_instruction);
+    f = ( (not modify_reg) or modify_flags) & not(is_ram_instruction) and shouldRun;
     newFlagN = mux(f,flagN,flags[0]);
     newFlagZ = mux(f,flagZ,flags[1]);
     newFlagC = mux(f,flagC,flags[2]);
