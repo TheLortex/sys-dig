@@ -229,20 +229,39 @@ void Program::write_read_roms(std::ofstream &cppfile)
     cppfile << "std::ifstream romfile;\n";
     for(std::pair<int,int> e: ExpressionRom::get_roms_size())
     {
-	cppfile << "std::cout << \"Nom du fichier contenant la rom adressée sur " << e.first << " bits :\" << std::endl;\n";
-	cppfile << "std::cin >> temp;\n";
+    	cppfile << "std::cout << \"Nom du fichier contenant la rom adressée sur " << e.first << " bits :\" << std::endl;\n";
+    	cppfile << "std::cin >> temp;\n";
 
-	cppfile << "romfile.open(temp);\n";
+    	cppfile << "romfile.open(temp);\n";
 
-	cppfile << "if(!romfile.is_open()){std::cout << \"Erreur lors de l'ouverture du fichier \" << temp << \".\" << std::endl; return 1;}\n";
+    	cppfile << "if(!romfile.is_open()){std::cout << \"Erreur lors de l'ouverture du fichier \" << temp << \".\" << std::endl; return 1;}\n";
 
-	cppfile << "for(int i = 0; i<" << (1 << e.first) << "; ++i)\n{\n";
-	cppfile << "if(!getline(romfile,temp)){break;}\n";
-	cppfile << "rom" << e.first << "[i] = std::stoll(temp, nullptr, 2);\n";
-	cppfile << "}\n";
+    	cppfile << "for(int i = 0; i<" << (1 << e.first) << "; ++i)\n{\n";
+    	cppfile << "if(!getline(romfile,temp)){break;}\n";
+    	cppfile << "rom" << e.first << "[i] = std::stoll(temp, nullptr, 2);\n";
+    	cppfile << "}\n";
 
-	cppfile << "romfile.close();\n";
+    	cppfile << "romfile.close();\n";
     }
+
+    for(std::pair<int,int> e: ExpressionRam::get_rams_size())
+    {
+    	cppfile << "std::cout << \"Nom du fichier contenant la ram adressée sur " << e.first << " bits :\" << std::endl;\n";
+    	cppfile << "std::cin >> temp;\n";
+
+    	cppfile << "romfile.open(temp);\n";
+
+    	cppfile << "if(!romfile.is_open()){std::cout << \"Erreur lors de l'ouverture du fichier \" << temp << \".\" << std::endl;} else {\n";
+
+    	cppfile << "for(int i = 0; i<" << (1 << e.first) << "; ++i)\n{\n";
+    	cppfile << "if(!getline(romfile,temp)){break;}\n";
+    	cppfile << "ram" << e.first << "[i] = std::stoll(temp, nullptr, 2);\n";
+    	cppfile << "}\n";
+
+    	cppfile << "romfile.close();}\n";
+    }
+
+
 }
 
 void Program::write_read_variables(std::ofstream &cppfile)
