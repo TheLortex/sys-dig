@@ -30,6 +30,13 @@ public:
   void update(std::string,uint8_t val);
   void stop();
   void run();
+  bool stopped() {
+    bool res;
+    stop_mutex.lock();
+    res = continuer;
+    stop_mutex.unlock();
+    return !res;
+  }
 
 private:
   SDL_Window* window;
@@ -149,7 +156,7 @@ void Segments::run() {
       SDL_Quit();
   }
 
-  window = SDL_CreateWindow("oui", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_SHOWN);
+  window = SDL_CreateWindow("oui", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE );
 
   if(window == 0){
     std::cout << "Erreur lors de la creation de la fenetre : " << SDL_GetError() << std::endl;
@@ -185,6 +192,8 @@ void Segments::run() {
   SDL_SetRenderDrawColor( renderer, 0, 0, 0, 255 );
   SDL_RenderClear(renderer);
 
+  SDL_Event evenements;
+
   stop_mutex.lock();
   while(continuer) {
     stop_mutex.unlock();
@@ -198,12 +207,22 @@ void Segments::run() {
     vars_mutex.unlock();
 
     SDL_RenderPresent(renderer);
+
     stop_mutex.lock();
-    SDL_Delay(1000/60.);
-    //if(evenements.window.event == SDL_WINDOWEVENT_CLOSE)
-      //continuer = false;
+    while(SDL_PollEvent(&evenements)) {
+      if ( evenements.window.event == SDL_WINDOWEVENT_CLOSE ) {
+          std::cout << "Je vais m'arrêter." << std::endl;
+          continuer = false;
+      }
+    }
+
+
+    SDL_Delay(1000/10.);
   }
+  stop_mutex.unlock();
 }
+
+
 
 void Segments::stop() {
   stop_mutex.lock();

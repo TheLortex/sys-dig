@@ -9,7 +9,7 @@ type code = Instr of int | Branch of (instr*cond*string*int) | DeclLabel of (str
 
 let encode_cst i =
   let n = ref(0) and c = ref(i) in
-  if (!c mod (1 lsl 24) < 16)
+  if (!c mod (1 lsl 28) < 16)
   then
     begin
       (2 lsl 8) + (!c lsl 4) + (!c lsr 28)
