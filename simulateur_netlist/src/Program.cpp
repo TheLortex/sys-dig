@@ -270,7 +270,7 @@ void Program::write_read_variables(std::ofstream &cppfile)
     for(Var *v: _input)
     {
       if(v->get_name() == "clock") {
-        cppfile << v->get_cpp_name() << " = " << "time(NULL) % 2; ";
+        cppfile << v->get_cpp_name() << " = " << "(x.quick() ? VAR : time(NULL)) % 2; ";
       } else {
         cppfile << "std::cout << \"" << v->get_name() << " (taille de la nappe : " << v->get_size() << ") : \";\n";
       	cppfile << "std::cin >> tempvar;\n";

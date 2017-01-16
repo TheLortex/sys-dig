@@ -33,6 +33,9 @@ public:
   bool stopped() {
     return !continuer;
   }
+  bool quick() {
+    return _quick;
+  }
 
 private:
   SDL_Window* window;
@@ -42,6 +45,7 @@ private:
   std::string m_config;
 
   bool continuer;
+  bool _quick;
   std::mutex vars_mutex;
   std::mutex stop_mutex;
 };
@@ -113,6 +117,7 @@ void SeptSeg::draw() {
 
 Segments::Segments(std::string config) {
   m_config = config;
+  _quick = false;
 }
 
 
@@ -122,6 +127,7 @@ Segments::Segments(const Segments& in) {
   affichages = in.affichages;
   mots = in.mots;
   continuer = in.continuer;
+  _quick = in._quick;
 }
 
 Segments::~Segments() {
@@ -206,6 +212,12 @@ void Segments::run() {
     while(SDL_PollEvent(&evenements)) {
       if ( evenements.window.event == SDL_WINDOWEVENT_CLOSE ) {
           continuer = false;
+      } else if(evenements.type == SDL_KEYDOWN) {
+        if (evenements.key.keysym.sym == SDLK_q) {
+          _quick = true;
+        } else if (evenements.key.keysym.sym == SDLK_s) {
+          _quick = false;
+        }
       }
     }
 

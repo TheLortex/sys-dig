@@ -17,6 +17,7 @@ opérations binaires sur des nappes de fils.
 * simulateur_netlist: prend en entrée une netlist issue de minijazz et la
 compile afin de la simuler. (pour plus d'informations voir le readme du
 simulateur.)
+-> Compilation en tapant "make" dans le dossier.
 
 * panda: compilateur d'un langage haut niveau dérivé du BASIC vers l'assembleur.
 -> se compile avec ocamlbuild (non nécessaire pour la compilation de l'horloge)

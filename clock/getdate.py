@@ -36,7 +36,7 @@ else:
     else:
         rB = 419 + 3*(M-10)
 if D <= 28:
-    rC = 301 + D*2
+    rC = 301 + (D-1)*2
 elif D == 29 and M == 2:
     rC = 362
 elif (D == 29 or D == 30) and (M == 4 or M == 6 or M == 9 or M == 11):
@@ -44,8 +44,8 @@ elif (D == 29 or D == 30) and (M == 4 or M == 6 or M == 9 or M == 11):
 else:
     rC = 372 + (D-29)*2
 
-rD = 252 + h*2
-rE = 131 + m*2
+rD = 252 + h*2 
+rE = 131 + m*2 
 rF = 10 + s*2
 
 
