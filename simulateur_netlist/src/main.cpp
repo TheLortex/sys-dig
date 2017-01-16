@@ -20,8 +20,8 @@ int main(int argc, char* argv[])
       prog.compile(std::string(argv[2] + std::string(".cpp")));
 
 	//On compile le fichier c++
-	std::string command = "g++ -o " + std::string(argv[2]) + " " + std::string(argv[2]) + ".cpp -lSDL2 -lpthread -std=c++0x -Ofast ";
-	system(command.c_str());
+      std::string command = "g++ -o " + std::string(argv[2]) + " " + std::string(argv[2]) + ".cpp -lSDL2 -lpthread -std=c++0x -Ofast -march=native -frename-registers";
+      system(command.c_str());
     }
     catch(std::string &s)
     {
