@@ -32,9 +32,7 @@ public:
   void run();
   bool stopped() {
     bool res;
-    stop_mutex.lock();
     res = continuer;
-    stop_mutex.unlock();
     return !res;
   }
 
