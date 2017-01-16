@@ -211,7 +211,7 @@ void Segments::run() {
     }
 
 
-    SDL_Delay(1000/10.);
+    SDL_Delay(1000/128.);
   }
 }
 

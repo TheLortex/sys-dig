@@ -40,7 +40,7 @@ end where
 
 (* main function *)
 
-main(clock) = (sec0:[7], sec1:[7], min0:[7], min1:[7], hour0:[7], hour1:[7] ,day0:[7], day1:[7], month0:[7], month1:[7], isbissextile, year0:[7], year1:[7], year2:[7], year3:[7], r0:[32], pc:[32], instruction:[32], alu_input_1:[32], alu_input_2:[32], flags:[4], shouldRun, flagN, flagZ, flagC, flagV) where
+main(clock) = () where
 
     (* We set the flags from precedent cycle *)
     flagN = reg(newFlagN);
@@ -105,6 +105,7 @@ main(clock) = (sec0:[7], sec1:[7], min0:[7], min1:[7], hour0:[7], hour1:[7] ,day
     useless2 = reg_write(is_branch_instruction and shouldRun, pc_addr, alu_output);
     useless3 = reg_write(is_branch_instruction and is_branch_and_link and shouldRun, 1.1.1.0, pcincr);
     useless4 = reg_write((not is_branch_instruction) and (not (modify_reg and rd_is_pc and shouldRun)) and (not(is_wait_instruction) or shouldRun), pc_addr, pcincr);
+
 
 
     (* We modify the flags if necessary for next cycle *)
