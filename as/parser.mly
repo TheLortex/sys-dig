@@ -63,7 +63,7 @@ instruction:
 	let cond = encode_cond cond
 	and instr = encode_instr instr
 	and rd = encode_reg rd
-	and r1 = 0
+	and r1 = encode_reg rd
 	and cst = encode_cst i
 	and s = if set_flags then 1 else 0
 	in
