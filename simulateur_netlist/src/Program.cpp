@@ -283,7 +283,7 @@ void Program::write_read_variables(std::ofstream &cppfile)
 
 void Program::write_iterations(std::ofstream &cppfile)
 {
-    cppfile << "int VAR;\nstd::cout << \" Number of cycles to calculate \" << std::endl;\nstd::cin>>VAR;\nfor(;VAR>0; --VAR)\n{\n";
+    cppfile << "int VAR;\nstd::cout << \" Number of cycles to calculate \" << std::endl;\nstd::cin>>VAR;\nfor(;VAR!=0; --VAR)\n{\n";
 
 
     //On lit les variables d'input
