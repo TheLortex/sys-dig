@@ -17,6 +17,21 @@
 
 \maketitle
 
+\section{Organisation du projet}
+
+Le projet est organisé en plusieurs dosseiers :
+\begin{itemize}
+  \item as contient un compilateur allant de la syntaxe ARM vers les
+    instructions lues par notre assembleur
+  \item minijazz contient une version modifiée de minijazz
+  \item mjblocks contient les fontions minijazz représentant le processeur
+  \item panda contient un compilateur du langage bamboo (fortement inspiré du
+    basic) vers le langage ARM
+  \item simulateur_netlist contient un compilateur de netlists, pour la
+    simulation
+  \item clock contient des scripts pour éxecuter facilement l'horloge 
+\end{itemize}
+
 \section{Modèle de processeur}
 
 Nous avons choisi de beaucoup nous inspirer des processeurs ARM, qui ont
@@ -100,7 +115,9 @@ recalculés :
 \section{Instructions assembleur}
 
 La syntaxe pour effectuer les opérations en assembleur suit la syntaxe spécifiée
-sur les processeurs ARM.
+sur les processeurs ARM. Nous avons créer un compilateur qui permet de compiler
+un programme ARM vers nos instructions sur 32 bits. Le programme est sité dans
+le dossier am.
 
 \subsection{Opérations arithmétiques et booléennes}
 
@@ -173,7 +190,9 @@ attends un signal donné par une horloge pour changer de seconde.
 Le programme est structuré en plusieurs blocs assembleurs, s'appellant pas
 système de branching. Il y a un bloc pour les unités de minutes, les dizaines de
 minutes, les unités d'heures... La seule exception étant pour les secondes, qui
-sont regroupés en un bloc.
+sont regroupés en un bloc. Chaque bloc s'occupe d'appeler les blocs d'unités
+plus faibles autant de fois qu'il le faut. De cette manière, il n'est pas
+nécessaire de garder en mémoire la valeur des unités.
 
 La date (hormi l'année) et l'heure est stocké dans le registre r0. L'année est
 elle stockée dans le registre r1. Il faut noter qu'on ne stocke pas les valeurs
@@ -184,8 +203,12 @@ les afficher en temps réel au moment de leur modification.
 Pour éviter d'avoir des heures impossibles affichées comme 3h60, notre
 représentation permet de modifier toutes les valeurs (sauf les années) en une
 unique instruction. Cependant, pendant quelques cycles, il sera affiché une
-année antérieure lors du passage au nouvel an.
+année antérieure lors du passage à la nouvelle année.\\
 
+
+Pour démarer à la date courante, nous créons via le script getdate.py une ram
+qui représente l'état de la montre à la date donnée. En spécifiant la ram lors
+de la simulation du procésseur, on démarre donc à la date courante.
 
 
 \subsection{Affichage en 7 segment}
