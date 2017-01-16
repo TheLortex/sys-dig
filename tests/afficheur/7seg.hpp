@@ -103,7 +103,7 @@ void SeptSeg::set_value(uint8_t val) {
 void SeptSeg::draw() {
   for(int i=0;i<7;i++)
     if(value & (1 << i))
-      SDL_RenderFillRect(win, &positions[i]);
+      SDL_RenderFillRect(win, &positions[6-i]);
 
 }
 
@@ -199,7 +199,7 @@ void Segments::run() {
 
     SDL_RenderPresent(renderer);
     stop_mutex.lock();
-    SDL_Delay(1000/2.);
+    SDL_Delay(1000/60.);
     //if(evenements.window.event == SDL_WINDOWEVENT_CLOSE)
       //continuer = false;
   }
@@ -215,5 +215,4 @@ void Segments::update(std::string str, uint8_t val) {
   vars_mutex.lock();
   affichages[mots[str]]->set_value(val);
   vars_mutex.unlock();
-
 }
