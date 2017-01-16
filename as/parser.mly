@@ -12,6 +12,7 @@
 %token <Arm.instr_dec> UNARY
 %token <Arm.instr_dec> RAM
 %token <Arm.instr_dec> BRANCH
+%token <Arm.instr_dec> SPECIAL
 %token <Arm.rot> ROT
 %token <string> LABEL
 %token EOF COMMA O C COLON
@@ -81,6 +82,17 @@ instruction:
 		in
 		pc := !pc + 1;Instr((cond lsl 28) + (instr lsl 21) + (s lsl 20) + (rd lsl 16) + (r1 lsl 12) + (shift lsl 4) + r2)
 	}
+| instr_dec=SPECIAL event_type=CST COMMA value=CST {
+	let instr,cond,_ = instr_dec in
+	let cond = encode_cond cond
+	and instr =
+		match instr with
+		| WAIT -> 0
+	and cst_t = event_type mod (1 lsl 12)
+	and cst_v = value mod (1 lsl 12) in
+	pc := !pc + 1;Instr((cond lsl 28) + (7 lsl 25) + (instr lsl 24) + (cst_t lsl 12) + cst_v)
+
+}
 
 shift:
 | COMMA rot=ROT i=CST {rot,i}

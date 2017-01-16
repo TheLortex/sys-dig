@@ -137,6 +137,7 @@ void Program::compile(std::string const &name)
     cppfile << "#include <fstream>\n";
     cppfile << "#include <bitset>\n";
     cppfile << "#include <thread>\n";
+    cppfile << "#include <ctime>\n";
     cppfile << "#include <array>\n\n";
     cppfile << "#include \"afficheur/7seg.hpp\"\n";
 
@@ -228,20 +229,39 @@ void Program::write_read_roms(std::ofstream &cppfile)
     cppfile << "std::ifstream romfile;\n";
     for(std::pair<int,int> e: ExpressionRom::get_roms_size())
     {
-	cppfile << "std::cout << \"Nom du fichier contenant la rom adressée sur " << e.first << " bits :\" << std::endl;\n";
-	cppfile << "std::cin >> temp;\n";
+    	cppfile << "std::cout << \"Nom du fichier contenant la rom adressée sur " << e.first << " bits :\" << std::endl;\n";
+    	cppfile << "std::cin >> temp;\n";
 
-	cppfile << "romfile.open(temp);\n";
+    	cppfile << "romfile.open(temp);\n";
 
-	cppfile << "if(!romfile.is_open()){std::cout << \"Erreur lors de l'ouverture du fichier \" << temp << \".\" << std::endl; return 1;}\n";
+    	cppfile << "if(!romfile.is_open()){std::cout << \"Erreur lors de l'ouverture du fichier \" << temp << \".\" << std::endl; return 1;}\n";
 
-	cppfile << "for(int i = 0; i<" << (1 << e.first) << "; ++i)\n{\n";
-	cppfile << "if(!getline(romfile,temp)){break;}\n";
-	cppfile << "rom" << e.first << "[i] = std::stoll(temp, nullptr, 2);\n";
-	cppfile << "}\n";
+    	cppfile << "for(int i = 0; i<" << (1 << e.first) << "; ++i)\n{\n";
+    	cppfile << "if(!getline(romfile,temp)){break;}\n";
+    	cppfile << "rom" << e.first << "[i] = std::stoll(temp, nullptr, 2);\n";
+    	cppfile << "}\n";
 
-	cppfile << "romfile.close();\n";
+    	cppfile << "romfile.close();\n";
     }
+
+    for(std::pair<int,int> e: ExpressionRam::get_rams_size())
+    {
+    	cppfile << "std::cout << \"Nom du fichier contenant la ram adressée sur " << e.first << " bits :\" << std::endl;\n";
+    	cppfile << "std::cin >> temp;\n";
+
+    	cppfile << "romfile.open(temp);\n";
+
+    	cppfile << "if(!romfile.is_open()){std::cout << \"Erreur lors de l'ouverture du fichier \" << temp << \".\" << std::endl;} else {\n";
+
+    	cppfile << "for(int i = 0; i<" << (1 << e.first) << "; ++i)\n{\n";
+    	cppfile << "if(!getline(romfile,temp)){break;}\n";
+    	cppfile << "ram" << e.first << "[i] = std::stoll(temp, nullptr, 2);\n";
+    	cppfile << "}\n";
+
+    	cppfile << "romfile.close();}\n";
+    }
+
+
 }
 
 void Program::write_read_variables(std::ofstream &cppfile)
@@ -251,9 +271,13 @@ void Program::write_read_variables(std::ofstream &cppfile)
 
     for(Var *v: _input)
     {
-	cppfile << "std::cout << \"" << v->get_name() << " (taille de la nappe : " << v->get_size() << ") : \";\n";
-	cppfile << "std::cin >> tempvar;\n";
-	cppfile << v->get_cpp_name() << " = " << "std::stoll(tempvar,nullptr,2);\n";
+      if(v->get_name() == "clock") {
+        cppfile << v->get_cpp_name() << " = " << "time(NULL) % 2; ";
+      } else {
+        cppfile << "std::cout << \"" << v->get_name() << " (taille de la nappe : " << v->get_size() << ") : \";\n";
+      	cppfile << "std::cin >> tempvar;\n";
+      	cppfile << v->get_cpp_name() << " = " << "std::stoll(tempvar,nullptr,2);\n";
+      }
     }
 
     cppfile << "\n";
